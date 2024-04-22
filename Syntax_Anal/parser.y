@@ -4,14 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "hashmap.h"
 extern int yylex();
 extern int yyparse();
 extern void yyerror(const char *s);
 extern FILE* yyin;
-
-HashMap symbol_table[10000];
-HashMap temp_store[10000];
 
 %}
 
@@ -30,45 +26,40 @@ HashMap temp_store[10000];
 %left OPR_MOD
 %left KEY_AND KEY_OR
 
-%type <ival> int_val atom expr bool_expr data_type identifier array_index
-%type <sval> args str_val
+// %type <ival> int_val atom expr bool_expr data_type identifier array_index
+// %type <sval> args str_val
 
 %start program
 
 %%
 
-int_val : INT {$$ = $<ival>1;}
+int_val : INT
 
-identifier : ID {
-  if (hash_find(symbol_table, $<sval>1)) {
-    $$ = hash_get(symbol_table, $<sval>1, 0);
-  } else {
-    hash_set(temp_store, $<sval>1, 0);
-    $$ = 0;
-  }
-}
+identifier : ID
 
-str_val : STR {$$ = $<sval>1;}
+str_val : STR
 
 array_index : identifier LBRACKET atom RBRACKET
 
-atom : int_val {$$ = $1;} 
+atom : int_val
         |
         array_index
         |
-        identifier {$$ = $1;}
+        identifier
 
-expr : expr OPR_PLUS expr {$$ = $1 + $3;}
+expr : expr OPR_PLUS expr 
       |
-      expr OPR_MINUS expr {$$ = $1 - $3;}
+      expr OPR_MINUS expr 
       |
-      expr OPR_MUL expr {$$ = $1 * $3;}
+      expr OPR_MUL expr 
       |
-      expr OPR_MOD expr {$$ = $1 % $3;}
+      expr OPR_MOD expr 
       |
-      expr OPR_DIV expr {$$ = $1 / $3;}
+      expr OPR_DIV expr 
       |
-      atom {$$ = $1;}
+      LPAREN expr RPAREN
+      |
+      atom
 
 decl_top : KEY_VAR decls
 
@@ -84,13 +75,13 @@ decl : mult_id COLON data_type SEMICOLON
         |
       mult_id COLON KEY_ARRAY LBRACKET INT TDOT INT RBRACKET KEY_OF data_type SEMICOLON
 
-data_type : KEY_INTEGER {$$ = KEY_INTEGER;}
+data_type : KEY_INTEGER
             |
-            KEY_CHAR {$$ = KEY_CHAR;}
+            KEY_CHAR
             |
-            KEY_REAL {$$ = KEY_REAL;}
+            KEY_REAL
             |
-            KEY_BOOLEAN {$$ = KEY_BOOLEAN;}
+            KEY_BOOLEAN
 
 
 read_write : KEY_READ LPAREN identifier RPAREN SEMICOLON
@@ -99,36 +90,33 @@ read_write : KEY_READ LPAREN identifier RPAREN SEMICOLON
             |
             KEY_WRITE LPAREN args RPAREN SEMICOLON
 
-args : atom COMMA args {
-            $$ = malloc(strlen($3) + 200 + 2);
-            sprintf($$, "%d, %s", $1, $3);
-            }
+args : atom COMMA args
       |
-      atom {$$ = malloc(200); sprintf($$, "%d", $1);}
+      atom
       |
-      str_val COMMA args {strcpy($$, $1); strcat($$, " "); strcat($$, $1);}
+      str_val COMMA args
       |
-      str_val {strcpy($$, $1);} 
+      str_val
 
 assignment : identifier COLON EQ expr SEMICOLON
 
-bool_expr : expr EQ expr {$$ = $1 == $3;}
+bool_expr : expr EQ expr
             |
-            expr NE expr {$$ = $1 != $3;}
+            expr NE expr
             |
-            expr LT expr {$$ = $1 < $3;}
+            expr LT expr 
             |
-            expr LE expr {$$ = $1 <= $3;}
+            expr LE expr
             |
-            expr GT expr {$$ = $1 > $3;}
+            expr GT expr
             |
-            expr GE expr {$$ = $1 >= $3;}
+            expr GE expr
             |
-            LPAREN bool_expr RPAREN {$$ = $2;}
+            LPAREN bool_expr RPAREN
             |
-            bool_expr KEY_AND bool_expr {$$ = ($1 && $3);}
+            bool_expr KEY_AND bool_expr
             |
-            bool_expr KEY_OR bool_expr {$$ = ($1 || $3);}
+            bool_expr KEY_OR bool_expr
 
 
 statement : assignment
