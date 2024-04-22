@@ -1,0 +1,1 @@
+lex lexer.l && gcc lex.yy.c -ll 
