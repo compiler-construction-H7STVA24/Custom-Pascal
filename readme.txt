@@ -17,7 +17,7 @@ Task 1 (Lexical Analysis)
 # Execute
 4. ./a.out filename.txt
 
-Task 1 (Syntax Analysis)
+Task 2 (Syntax Analysis)
 # Change Directory
 # First make sure you are in the working directory of the project.
 1. cd Syntax_Anal
