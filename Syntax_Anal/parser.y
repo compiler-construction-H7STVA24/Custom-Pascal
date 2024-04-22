@@ -168,6 +168,6 @@ void yyerror(const char *s) {
 }
 
 int yywrap() {
-  printf("Valid Input.\n");
+  printf("valid input\n");
   return 1;
 }

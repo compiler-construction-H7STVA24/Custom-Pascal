@@ -7,7 +7,7 @@
 
 int line_number = 0;
 
-#define printToken(x, y) printf("%d      %s                               %s\n", line_number + 1, x, y);
+#define printToken(x, y) printf("%d %s %s\n", line_number + 1, x, y);
 %}
 
 %option caseless
