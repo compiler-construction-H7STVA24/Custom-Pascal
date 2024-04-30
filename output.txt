@@ -1,0 +1,10 @@
+{program (ID: 655);
+{{(ID: 889) : array [(INT: 1)..(INT: 10)] of {integer}}
+{{(ID: 678), (ID: 136)} : {integer}}}begin
+{{write {(STR: Enter 10 integer values:), (ID: 678)}}
+{{(ID: 136) = {(ID: 889)[(INT: 1)]}}
+{{if {{(ID: 889)[(ID: 678)]} > (ID: 136)} then
+{(ID: 136) = {(ID: 889)[(ID: 678)]}}}
+{{write (STR: The maximum value is: )}
+{write (ID: 136)}}}}}end.
+}

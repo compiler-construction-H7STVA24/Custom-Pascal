@@ -1,0 +1,14 @@
+program MaxValueArray;
+var
+  numbers: array[1..10] of Integer;
+  i, maxValue: Integer;
+begin
+  write("Enter 10 integer values:", i);
+  maxValue := numbers[1];
+  if numbers[i] > maxValue then
+  begin
+    maxValue := numbers[i];
+  end;
+  write("The maximum value is: ");  
+  write(maxValue);
+end.
