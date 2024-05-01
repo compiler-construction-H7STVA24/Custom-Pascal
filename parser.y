@@ -9,6 +9,7 @@
 extern int yylex();
 extern int yyparse();
 extern void yyerror(const char *s);
+void cust_err(const char *s);
 extern FILE* yyin;
 extern FILE* yyout;
 
@@ -20,8 +21,10 @@ void gencode(char *word, char *first, char *op, char *second) {
         char temp[10];
         sprintf(temp, "%d", k++);
         strcat(word, temp);
-        fprintf(yyout, "%s = %s %s %s\n", word, first, op, second);
+        printf("%s = %s %s %s\n", word, first, op, second);
 }
+
+symNode sym_table[MAX_SYMBOLS];
 
 unsigned long sym_hash(char *str)
 {
@@ -39,10 +42,11 @@ nodeType *opr(typeEnum oper, int nops, ...);
 nodeType *id(int i);
 nodeType *conInt(int value);
 nodeType *conStr(char *value);
+void decEx(nodeType *root);
 
 void freeNode(nodeType *p);
 
-void printNode(nodeType *root);
+nodeType *ex(nodeType *root);
 
 %}
 
@@ -179,37 +183,37 @@ read_write : KEY_READ LPAREN identifier RPAREN SEMICOLON {
 }
             |
             KEY_READ LPAREN array_index RPAREN SEMICOLON {
-        // fprintf(yyout, "func call read\n");
+        // printf("func call read\n");
         $$ = opr(_typeRead, 1, $3);
 }
             |
             KEY_WRITE LPAREN args RPAREN SEMICOLON {
-        // fprintf(yyout, "func call write\n");
+        // printf("func call write\n");
         $$ = opr(_typeWrite, 1, $3);
 }
 
 args : atom COMMA args {
-//     fprintf(yyout, "(Stack push) %s\n", $1);
+//     printf("(Stack push) %s\n", $1);
         $$ = opr(_typeArgs, 2, $1, $3);
 }
       |
       atom {
-        // fprintf(yyout, "(Stack push) %s\n", $1);
+        // printf("(Stack push) %s\n", $1);
         $$ = $1;
       }
       |
       str_val COMMA args {
-        // fprintf(yyout, "(Stack push) %s\n", $1);
+        // printf("(Stack push) %s\n", $1);
         $$ = opr(_typeArgs, 2, $1, $3);
       }
       |
       str_val {
-        // fprintf(yyout, "(Stack push) %s\n", $1);
+        // printf("(Stack push) %s\n", $1);
         $$ = $1;
       }
 
 assignment : identifier COLON EQ expr SEMICOLON {
-        // fprintf(yyout, "%s = %s\n", $1, $4);
+        // printf("%s = %s\n", $1, $4);
         $$ = opr(_typeAssign, 2, $1, $4);
 }
 
@@ -283,7 +287,7 @@ body : statement body {
 }
 
 conditional : KEY_IF bool_expr KEY_THEN KEY_BEGIN body KEY_END SEMICOLON {
-        // fprintf(yyout, "end if\n");
+        // printf("end if\n");
         $$ = opr(_typeIf, 2, $2, $5);
 }
               |
@@ -310,21 +314,23 @@ loop : for_loop {$$ = $1;}
 
 program : KEY_PROGRAM identifier SEMICOLON decl_top KEY_BEGIN body KEY_END DOT {
         $$ = opr(_typeProgram, 3, $2, $4, $6);
-        printNode($$);
+        decEx($4);
+        ex($6);
 }
 
 // demo : expr {
-//         fprintf(yyout, "%s\n", $1);
+//         printf("%s\n", $1);
 // }
 %%
 
 nodeType *conInt(int value) {
     nodeType *p;
     if((p = (nodeType *)malloc(sizeof(nodeType))) == NULL) {
-        yyerror("Out of memory\n");
+        printf("Out of memory\n");
+        cust_err("Out of memory\n");
         exit(0);
     }
-    p->type = _typeInt;
+    p->type = _conInt;
     p->conInt.value = value;
     return p;
 
@@ -333,11 +339,25 @@ nodeType *conInt(int value) {
 nodeType *conStr(char *value) {
     nodeType *p;
     if((p = (nodeType *)malloc(sizeof(nodeType))) == NULL) {
-        yyerror("Out of memory\n");
+        printf("Out of memory\n");
+        cust_err("Out of memory\n");
         exit(0);
     }
-    p->type = _typeStr;
+    p->type = _conStr;
     p->conStr.value = strdup(value);
+    return p;
+
+}
+
+nodeType *conBool(int value) {
+    nodeType *p;
+    if((p = (nodeType *)malloc(sizeof(nodeType))) == NULL) {
+        printf("Out of memory\n");
+        cust_err("Out of memory\n");
+        exit(0);
+    }
+    p->type = _conBool;
+    p->conInt.value = value;
     return p;
 
 }
@@ -345,7 +365,8 @@ nodeType *conStr(char *value) {
 nodeType *id(int i) {
     nodeType *p;
     if((p = (nodeType *)malloc(sizeof(nodeType))) == NULL) {
-        yyerror("Out of memory\n");
+        printf("Out of memory\n");
+        cust_err("Out of memory\n");
         exit(0);
     }
     p->type = _id;
@@ -359,10 +380,14 @@ nodeType *opr(typeEnum oper, int nops, ...) {
     int i;
 
     /* allocate node */
-    if ((p = malloc(sizeof(nodeType))) == NULL)
-        yyerror("out of memory");   
-    if ((p->opr.ops = malloc(nops * sizeof(nodeType))) == NULL)
-        yyerror("out of memory"); 
+    if ((p = malloc(sizeof(nodeType))) == NULL) {
+        printf("Out of memory\n");
+        cust_err("out of memory");   
+    }
+    if ((p->opr.ops = malloc(nops * sizeof(nodeType))) == NULL) {
+        printf("Out of memory\n");
+        cust_err("out of memory"); 
+    }
     p->type = _opr;
     p->opr.oper = oper;
     p->opr.nops = nops;
@@ -385,207 +410,455 @@ void freeNode(nodeType *p) {
     free (p);
 } 
 
-void printNode(nodeType *root) {
-    // printf("printNode\n");
-    if (root == NULL) return;
-    if (root->type ==  _conInt)
-        fprintf(yyout, "(INT: %d)", root->conInt.value);
-    else if (root->type ==  _conStr)
-        fprintf(yyout, "(STR: %s)", root->conStr.value);
-    else if (root->type ==  _id)
-        fprintf(yyout, "(ID: %d)", root->id.i);
-    else if (root->type ==  _opr) {
-    fprintf(yyout, "{");
-    switch(root->opr.oper) {
-        case _typeInt:
-            fprintf(yyout, "integer");
-            break;
-        case _typeReal:
-            fprintf(yyout, "real");
-            break;
-        case _typeChar:
-            fprintf(yyout, "char");
-            break;
-        case _typeAdd:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " + ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeSub:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " - ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeMul:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " * ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeDiv:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " / ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeMod:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " % ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeAssign:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " = ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeEE:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " == ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeNE:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " != ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeLT:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " < ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeLE:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " <= ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeGT:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " > ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeGE:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " >= ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeAnd:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " && ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeOr:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " || ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeIf:
-            fprintf(yyout, "if ");
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " then\n");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeIfElse:
-            fprintf(yyout, "if ");
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " then\n");
-            printNode(root->opr.ops[1]);
-            fprintf(yyout, "else\n");
-            printNode(root->opr.ops[2]);
-            break;
-        case _typeWhile:
-            fprintf(yyout, "while ");
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " do\n");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeFor:
-            fprintf(yyout, "for ");
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " do\n");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeForRange:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " = ");
-            printNode(root->opr.ops[1]);
-            fprintf(yyout, " to ");
-            printNode(root->opr.ops[2]);
-            break;
-        case _typeRead:
-            fprintf(yyout, "read ");
-            printNode(root->opr.ops[0]);
-            break;
-        case _typeWrite:
-            fprintf(yyout, "write ");
-            printNode(root->opr.ops[0]);
-            break;
-        case _typeBody:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, "\n");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeDecls:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, "\n");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeDecl:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " : ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeDeclArray:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, " : array [");
-            printNode(root->opr.ops[1]);
-            fprintf(yyout, "..");
-            printNode(root->opr.ops[2]);
-            fprintf(yyout, "] of ");
-            printNode(root->opr.ops[3]);
-            break;
-        case _typeArgs:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, ", ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeMultId:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, ", ");
-            printNode(root->opr.ops[1]);
-            break;
-        case _typeArrayIndex:
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, "[");
-            printNode(root->opr.ops[1]);
-            fprintf(yyout, "]");
-            break;
-        case _typeProgram:
-            fprintf(yyout, "program ");
-            printNode(root->opr.ops[0]);
-            fprintf(yyout, ";\n");
-            printNode(root->opr.ops[1]);
-            fprintf(yyout, "begin\n");
-            printNode(root->opr.ops[2]);
-            fprintf(yyout, "end.\n");
-            break;
+int getArrValue(nodeType *arr, int index) {
+    if (arr->type != _id) {
+        cust_err("Invalid array index");
+        exit(1);
+    }
+    if (!sym_table[arr->id.i].declared) {
+        // printf("%d not declared\n", arr->id.i);
+        cust_err("Variable not declared");
+        exit(1);
+    }
+    if (index < 0 || index > sym_table[arr->id.i].arrSize) {
+        cust_err("Array index out of bounds");
+        exit(1);
+    }
+    return sym_table[arr->id.i].intArrValue[index - 1];
+}
+
+void setArrValue(nodeType *arr, int index, int value) {
+    if (arr->type != _id) {
+        cust_err("Invalid array index");
+        exit(1);
+    }
+    if (!sym_table[arr->id.i].declared) {
+        // printf("%d not declared\n", arr->id.i);
+        cust_err("Variable not declared");
+        exit(1);
+    }
+    if (index < 0 || index > sym_table[arr->id.i].arrSize) {
+        cust_err("Array index out of bounds");
+        exit(1);
+    }
+    sym_table[arr->id.i].intArrValue[index - 1] = value;
+}
+
+int getValue(nodeType *p) {
+    if (p->type == _conInt) {
+        return p->conInt.value;
+    } else if (p->type == _id) {
+        if (!sym_table[p->id.i].declared) {
+            // printf("%d not declared\n", p->id.i);
+            cust_err("Variable not declared");
+            exit(1);
         }
-        fprintf(yyout, "}");
+        // printf("%d get\n", p->id.i);
+        return sym_table[p->id.i].intValue;
+    } else if (p->type == _opr && p->opr.oper == _typeArrayIndex) {
+        return getArrValue(ex(p->opr.ops[0]), getValue(ex(p->opr.ops[1])));
+        // if (!sym_table[p->id.i].declared) {
+        //     // printf("%d not declared\n", p->id.i);
+        //     cust_err("Variable not declared");
+        //     exit(1);
+        // }
+        // // printf("%d get\n", p->id.i);
+        // return sym_table[p->id.i].intValue;
+    } else {
+        cust_err("Invalid expression");
+        exit(1);
+    }
+}
+
+void setValue(nodeType *p, int value) {
+    if (!sym_table[p->id.i].declared) {
+        // printf("%d not declared\n", p->id.i);
+        cust_err("Variable not declared");
+        exit(1);
+    }
+    if (p->type == _id) {
+        // printf("%d set %d\n", p->id.i, value);
+        sym_table[p->id.i].intValue = value;
+    } else if (p->type == _opr && p->opr.oper == _typeArrayIndex) {
+        // printf("%d set %d\n", p->id.i, value);
+        // sym_table[p->id.i].intValue = value;
+        setArrValue(ex(p->opr.ops[0]), getValue(ex(p->opr.ops[1])), value);
+    } else {
+        cust_err("Invalid assignment");
+        exit(1);
+    }
+}
+
+
+dataType getDt(nodeType *p) {
+    if (p == NULL) return _dtEmpty;
+    if (p->type == _typeInt) return _dtInt;
+    if (p->type == _typeReal) return _dtReal;
+    if (p->type == _typeChar) return _dtChar;
+    if (p->type == _typeBoolean) return _dtBool;
+    return _dtEmpty;
+}
+
+dataType getArrDt(dataType dt) {
+    if (dt == _dtInt) return _dtIntArr;
+    if (dt == _dtReal) return _dtRealArr;
+    if (dt == _dtChar) return _dtCharArr;
+    if (dt == _dtBool) return _dtBoolArr;
+    return _dtEmpty;
+}
+
+int isArrDt(dataType dt) {
+    if (dt == _dtIntArr) return 1;
+    if (dt == _dtRealArr) return 1;
+    if (dt == _dtCharArr) return 1;
+    if (dt == _dtBoolArr) return 1;
+    return 0;
+}
+
+int getArrElemSize(dataType dt) {
+    if (dt == _dtIntArr) return sizeof(int);
+    if (dt == _dtRealArr) return sizeof(float);
+    if (dt == _dtCharArr) return sizeof(char);
+    if (dt == _dtBoolArr) return sizeof(int);
+    return 0;
+}
+
+
+nodeType *dec(nodeType *root, dataType dt, int __sz) {
+    if (root == NULL) return NULL;
+    if (root->type == _id) {
+        // printf("id\n");
+        if (sym_table[root->id.i].declared) {
+            cust_err("Variable already declared");
+            exit(1);
+        }
+        sym_table[root->id.i].dt = dt;
+        sym_table[root->id.i].declared = 1;
+        // printf("%d declared\n", root->id.i);
+        if (isArrDt(dt)) {
+            sym_table[root->id.i].arrSize = __sz;
+            if (dt == _dtIntArr || dt == _dtBoolArr)
+                sym_table[root->id.i].intArrValue = calloc(__sz, getArrElemSize(dt));
+            else if (dt == _dtRealArr)
+                sym_table[root->id.i].realArrValue = calloc(__sz, getArrElemSize(dt));
+            else if (dt == _dtCharArr)
+                sym_table[root->id.i].charArrValue = calloc(__sz, getArrElemSize(dt));
+        } else {
+            sym_table[root->id.i].intValue = 0;
+        }
+        return NULL;
+    }
+    if (root->opr.oper == _typeDecls) {
+        // printf("decls\n");
+        dec(root->opr.ops[0], dt, __sz);
+        dec(root->opr.ops[1], dt, __sz);
+        return NULL;
+    }
+    if (root->opr.oper == _typeDecl) {
+        // printf("decl\n");
+        nodeType *l = dec(root->opr.ops[1], dt, __sz);
+        dec(root->opr.ops[0], getDt(l), 0);
+        return NULL;
+    }
+    if (root->opr.oper == _typeDeclArray) {
+        nodeType *l = dec(root->opr.ops[3], dt, __sz);
+        int beg = getValue(root->opr.ops[1]);
+        int en = getValue(root->opr.ops[2]);
+        // printf("Decl array %d %d\n", beg, en);
+        dec(root->opr.ops[0], getArrDt(getDt(l)), en - beg + 1);
+        return NULL;
+    }
+    if (root->opr.oper == _typeMultId) {
+        dec(root->opr.ops[0], dt, __sz);
+        dec(root->opr.ops[1], dt, __sz);
+        return NULL;
+    }
+    if (root->opr.oper == _typeInt) {
+        return root;
+    }
+    if (root->opr.oper == _typeChar) {
+        return root;
+    }
+    if (root->opr.oper == _typeReal) {
+        return root;
+    }
+    if (root->opr.oper == _typeBoolean) {
+        return root;
+    }
+    return NULL;
+}
+
+void decEx(nodeType *root) {
+    dec(root, _dtEmpty, 0);
+}
+
+nodeType* ex(nodeType *root) {
+    // printf("printNode\n");
+    if (root == NULL) return NULL;
+    if (root->type ==  _conInt)
+        return root;
+    else if (root->type ==  _conStr)
+        return root;
+    else if (root->type ==  _id)
+        return root;
+    else if (root->type ==  _opr) {
+    // printf("{");
+    typeEnum oper = root->opr.oper;
+        if (oper == _typeInt) return root;
+        if (oper == _typeReal) return root;
+        if (oper == _typeChar) return root;
+        if (oper == _typeAdd) {
+            nodeType *left =  ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conInt(getValue(left) + getValue(right));
+        }
+        if (oper == _typeSub) {
+            nodeType *left =  ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conInt(getValue(left) - getValue(right));
+        }
+        if (oper == _typeMul) {
+            nodeType *left =  ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conInt(getValue(left) * getValue(right));
+        }
+        if (oper == _typeDiv) {
+            nodeType *left =  ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conInt(getValue(left) / getValue(right));
+        }
+        if (oper == _typeMod) {
+            nodeType *left =  ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conInt(getValue(left) % getValue(right));
+        }
+        if (oper == _typeAssign) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            // sym_table[left->id.i] = getValue(right);
+            setValue(left, getValue(right));
+            return NULL;
+        }
+        if (oper == _typeEE) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) == getValue(right));
+        }
+        if (oper == _typeNE) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) != getValue(right));
+        }
+        if (oper == _typeLT) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) < getValue(right));
+        }
+        if (oper == _typeLE) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) <= getValue(right));
+        }
+        if (oper == _typeGT) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) > getValue(right));
+        }
+        if (oper == _typeGE) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) >= getValue(right));
+        }
+        if (oper == _typeAnd) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) && getValue(right));
+        }
+        if (oper == _typeOr) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *right = ex(root->opr.ops[1]);
+            return conBool(getValue(left) || getValue(right));
+        }
+        if (oper == _typeIf) {
+            nodeType *left = ex(root->opr.ops[0]);
+            if (left->conBool.value) {
+                ex(root->opr.ops[1]);
+            }
+            return NULL;
+        }
+        if (oper == _typeIfElse) {
+            nodeType *left = ex(root->opr.ops[0]);
+            if (left->conBool.value) {
+                ex(root->opr.ops[1]);
+            } else {
+                ex(root->opr.ops[2]);
+            }
+            return NULL;
+        }
+        if (oper == _typeWhile) {
+            nodeType *left = ex(root->opr.ops[0]);
+            while (left->conBool.value) {
+                // printf("while\n");
+                ex(root->opr.ops[1]);
+                left = ex(root->opr.ops[0]);
+            }
+            return NULL;
+        }
+        if (oper == _typeFor) {
+            nodeType *left = ex(root->opr.ops[0]);
+            int beg = getValue(root->opr.ops[1]);
+            int en = getValue(root->opr.ops[2]);
+            printf("for %d %d\n", beg, en);
+            for (int __i = beg; __i <= en; ++__i) {
+                printf("for\n");
+                // sym_table[left->opr.ops[0]->id.i] = __i;
+                // setValue(left->opr.ops[0], __i);
+                ex(root->opr.ops[1]);
+            }
+            // printNode(root->opr.ops[1]);
+            return NULL;
+        }
+        if (oper == _typeForRange) {
+            nodeType *left = ex(root->opr.ops[0]);
+            nodeType *beg = ex(root->opr.ops[1]);
+            nodeType *en = ex(root->opr.ops[2]);
+            return opr(_typeForRange, 3, left, beg, en);
+        }
+        if (oper == _typeRead) {
+            // printf("read ");
+            printf("read\n");
+            if (root->opr.ops[0]->type == _id) {
+                nodeType *left = ex(root->opr.ops[0]);
+                int __i;
+                scanf(" %d", &__i);
+                // sym_table[root->opr.ops[0]->id.i] = __i;
+                setValue(left, __i);
+            } else if (root->opr.ops[0]->type == _typeArrayIndex) {
+                nodeType *arr = ex(root->opr.ops[0]);
+                nodeType *arrId = ex(arr->opr.ops[0]);
+                nodeType *index = ex(arr->opr.ops[1]);
+                int __i;
+                scanf(" %d", &__i);
+                setArrValue(arrId, getValue(index), __i);
+            }
+            return NULL;
+        }
+        if (oper == _typeWrite) {
+            // printf("write ");
+            nodeType *left = ex(root->opr.ops[0]);
+            while (left) {
+                if (left->type == _conInt) {
+                    printf("%d ", left->conInt.value);
+                    break;
+                } else if (left->type == _conStr) {
+                    printf("%s ", left->conStr.value);
+                    break;
+                } else if (left->type == _id) {
+                    printf("%d ", getValue(left));
+                    break;
+                } else {
+                    if (left->opr.oper == _typeArgs) {
+                        nodeType *right = ex(left->opr.ops[0]);
+                        if (right->type == _conInt) {
+                            printf("%d ", right->conInt.value);
+                        } else if (right->type == _conStr) {
+                            printf("%s ", right->conStr.value);
+                        } else if (right->type == _id) {
+                            printf("%d ", getValue(right));
+                        } else {
+                            printf("Invalid write statement");
+                            cust_err("Invalid write statement");
+                            exit(1);
+                        }
+                        left = ex(left->opr.ops[1]);
+                    } else if (left->opr.oper == _typeArrayIndex) {
+                        nodeType *arrId = ex(left->opr.ops[0]);
+                        nodeType *index = ex(left->opr.ops[1]);
+                        printf("%d ", getArrValue(arrId, getValue(index)));
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return NULL;
+        }
+        if (oper == _typeBody) {
+            ex(root->opr.ops[0]);
+            ex(root->opr.ops[1]);
+            return NULL;
+        }
+        // if (oper == _typeDecls) {
+        //     // ex(root->opr.ops[0]);
+        //     // ex(root->opr.ops[1]);
+        //     return NULL;
+        // }
+        // if (oper == _typeDecl) {
+        //     ex(root->opr.ops[0]);
+        //     ex(root->opr.ops[1]);
+        //     return NULL;
+        // }
+        // if (oper == _typeDeclArray) {
+        //     // printNode(root->opr.ops[0]);
+        //     // printf(" : array [");
+        //     // printNode(root->opr.ops[1]);
+        //     // printf("..");
+        //     // printNode(root->opr.ops[2]);
+        //     // printf("] of ");
+        //     // printNode(root->opr.ops[3]);
+        //     return NULL;
+        // }
+        if (oper == _typeArgs) {
+            // nodeType *left = ex(root->opr.ops[0]);
+            // nodeType *right = ex(root->opr.ops[1]);
+            // return opr(_typeArgs, 2, left, right);
+            return root;
+        }
+        if (oper == _typeMultId) {
+            ex(root->opr.ops[0]);
+            // printf(", ");
+            ex(root->opr.ops[1]);
+            return NULL;
+        }
+        if (oper == _typeArrayIndex) {
+            return root;
+        }
+        if (oper == _typeProgram) {
+            // printf("program ");
+            nodeType *tid = ex(root->opr.ops[0]);
+            // printf(";\n");
+            ex(root->opr.ops[1]);
+            ex(root->opr.ops[2]);
+            // printf("end.\n");
+            return NULL;
+        // printf("}");
+        }
+        return NULL;
+    }
+}
+
+void initSymTable() {
+    for (int i = 0; i < MAX_SYMBOLS; ++i) {
+        sym_table[i].declared = 0;
     }
 }
 
 int main(int argc, char* argv[]) {
     if(argc < 2) {
-        fprintf(yyout, "Usage: %s <input_file>\n", argv[0]);
+        printf("Usage: %s <input_file>\n", argv[0]);
         return 1;
     }
+    initSymTable();
 
     yyin = fopen(argv[1], "r");
     if(yyin == NULL) {
-        fprintf(yyout, "Error opening file %s\n", argv[1]);
+        printf("Error opening file %s\n", argv[1]);
         return 1;
     }
 
     yyout = fopen("output.txt", "w");
     if(yyout == NULL) {
-            fprintf(yyout, "Error opening file output.txt\n");
+            printf("Error opening file output.txt\n");
             return 1;
     }
     
@@ -593,11 +866,15 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+void cust_err(const char *s) {
+    fprintf(stderr, "cust_err : %s\n", s);
+}
+
 void yyerror(const char *s) {
-    fprintf(stderr, "%s\n", s);
+    fprintf(stderr, "cust_err : %s\n", s);
 }
 
 int yywrap() {
-//   fprintf(yyout, "valid input\n");
+//   printf("valid input\n");
   return 1;
 }

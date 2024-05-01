@@ -42,6 +42,7 @@ typedef enum {
 typedef enum {
   _conInt, 
   _conStr, 
+  _conBool,
   _opr,
   _id,
 } nodeEnum;
@@ -49,6 +50,10 @@ typedef enum {
 typedef struct {
   int value;
 } _conIntNodeType;
+
+typedef struct {
+  int value;
+} _conBoolNodeType;
 
 typedef struct {
   char *value;
@@ -69,11 +74,29 @@ typedef struct NodeTypeTag {
   union {
     _conIntNodeType conInt;
     _conStrNodeType conStr;
+    _conBoolNodeType conBool;
     _idNodeType id;
     _oprNodeType opr;
   };
 } nodeType;
 
+
+typedef enum {_dtEmpty, _dtInt, _dtReal, _dtChar, _dtBool, _dtIntArr, _dtRealArr, _dtCharArr, _dtBoolArr} dataType;
+
+typedef struct {
+  dataType dt;
+  union {
+    int intValue;
+    char charValue;
+    float realValue;
+    char *charArrValue;
+    int *intArrValue;
+    float *realArrValue;
+  };
+  int declared;
+  int arrSize;
+} symNode;
+
 extern unsigned long sym_hash(char *str);
 
-extern int sym[MAX_SYMBOLS];
+extern symNode sym_table[MAX_SYMBOLS];

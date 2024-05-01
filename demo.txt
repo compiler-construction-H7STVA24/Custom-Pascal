@@ -1,14 +1,13 @@
-program MaxValueArray;
 var
-  numbers: array[1..10] of Integer;
-  i, maxValue: Integer;
+  number, sum, i: Integer;
 begin
-  write("Enter 10 integer values:", i);
-  maxValue := numbers[1];
-  if numbers[i] > maxValue then
+  write("Enter a number to calculate the sum of squares up to that number:");
+  read(number);
+  sum := 0;
+  for i := 1 to number do
   begin
-    maxValue := numbers[i];
+    sum := sum + (i * i);
   end;
-  write("The maximum value is: ");  
-  write(maxValue);
+  write("The sum of squares up is");
+  write(sum);
 end.
