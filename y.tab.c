@@ -1983,13 +1983,14 @@ yyreduce:
     {
         (yyval.nPtr) = opr(_typeProgram, 3, (yyvsp[(2) - (8)].nPtr), (yyvsp[(4) - (8)].nPtr), (yyvsp[(6) - (8)].nPtr));
         decEx((yyvsp[(4) - (8)].nPtr));
+        printf("Decl done\n");
         ex((yyvsp[(6) - (8)].nPtr));
 }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1993 "y.tab.c"
+#line 1994 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2203,7 +2204,7 @@ yyreturn:
 }
 
 
-#line 324 "parser.y"
+#line 325 "parser.y"
 
 
 nodeType *conInt(int value) {
@@ -2327,6 +2328,58 @@ void setArrValue(nodeType *arr, int index, int value) {
     sym_table[arr->id.i].intArrValue[index - 1] = value;
 }
 
+void printNode(nodeType *p) {
+    if (!p) return;
+    if (p->type == _conInt) {
+        printf("%d", p->conInt.value);
+    } else if (p->type == _conStr) {
+        printf("%s", p->conStr.value);
+    } else if (p->type == _id) {
+        printf("%d", p->id.i);
+    } else if (p->type == _opr) {
+        switch(p->opr.oper) {
+            case _typeAdd: printf("+"); break;
+            case _typeSub: printf("-"); break;
+            case _typeMul: printf("*"); break;
+            case _typeDiv: printf("/"); break;
+            case _typeMod: printf("%%"); break;
+            case _typeAssign: printf("="); break;
+            case _typeEE: printf("=="); break;
+            case _typeNE: printf("!="); break;
+            case _typeLT: printf("<"); break;
+            case _typeLE: printf("<="); break;
+            case _typeGT: printf(">"); break;
+            case _typeGE: printf(">="); break;
+            case _typeAnd: printf("&&"); break;
+            case _typeOr: printf("||"); break;
+            case _typeIf: printf("if"); break;
+            case _typeIfElse: printf("if-else"); break;
+            case _typeWhile: printf("while"); break;
+            case _typeFor: printf("for"); break;
+            case _typeForRange: printf("for-range"); break;
+            case _typeRead: printf("read"); break;
+            case _typeWrite: printf("write"); break;
+            case _typeBody: printf("body"); break;
+            case _typeDecls: printf("decls"); break;
+            case _typeDecl: printf("decl"); break;
+            case _typeDeclArray: printf("decl-array"); break;
+            case _typeArgs: printf("args"); break;
+            case _typeMultId: printf("mult-id"); break;
+            case _typeArrayIndex: printf("array-index"); break;
+            case _typeProgram: printf("program"); break;
+        }
+        printf("(");
+        for(int i = 0; i < p->opr.nops; i++) {
+            printNode(p->opr.ops[i]);
+            if (i < p->opr.nops - 1) {
+                printf(", ");
+            
+            }
+        }
+        printf(")");
+    }
+}
+
 int getValue(nodeType *p) {
     if (p->type == _conInt) {
         return p->conInt.value;
@@ -2339,7 +2392,7 @@ int getValue(nodeType *p) {
         // printf("%d get\n", p->id.i);
         return sym_table[p->id.i].intValue;
     } else if (p->type == _opr && p->opr.oper == _typeArrayIndex) {
-        return getArrValue(ex(p->opr.ops[0]), getValue(ex(p->opr.ops[1])));
+        return getArrValue(p->opr.ops[0], getValue(ex(p->opr.ops[1])));
         // if (!sym_table[p->id.i].declared) {
         //     // printf("%d not declared\n", p->id.i);
         //     cust_err("Variable not declared");
@@ -2348,6 +2401,8 @@ int getValue(nodeType *p) {
         // // printf("%d get\n", p->id.i);
         // return sym_table[p->id.i].intValue;
     } else {
+        printNode(p);
+        printf("\n");
         cust_err("Invalid expression");
         exit(1);
     }
@@ -2404,6 +2459,16 @@ int getArrElemSize(dataType dt) {
     if (dt == _dtCharArr) return sizeof(char);
     if (dt == _dtBoolArr) return sizeof(int);
     return 0;
+}
+
+void declInt(nodeType *root, int v) {
+    if (root == NULL) return;
+    if (root->type == _id) {
+        sym_table[root->id.i].dt = _dtInt;
+        sym_table[root->id.i].declared = 1;
+        sym_table[root->id.i].intValue = v;
+        return;
+    }
 }
 
 
@@ -2589,13 +2654,15 @@ nodeType* ex(nodeType *root) {
         }
         if (oper == _typeFor) {
             nodeType *left = ex(root->opr.ops[0]);
-            int beg = getValue(root->opr.ops[1]);
-            int en = getValue(root->opr.ops[2]);
-            printf("for %d %d\n", beg, en);
+            int beg = getValue(left->opr.ops[1]);
+            int en = getValue(left->opr.ops[2]);
+            nodeType *forIden = left->opr.ops[0];
+            declInt(forIden, beg);
+            // printf("for %d %d\n", beg, en);
             for (int __i = beg; __i <= en; ++__i) {
-                printf("for\n");
+                // printf("for\n");
                 // sym_table[left->opr.ops[0]->id.i] = __i;
-                // setValue(left->opr.ops[0], __i);
+                setValue(left->opr.ops[0], __i);
                 ex(root->opr.ops[1]);
             }
             // printNode(root->opr.ops[1]);
@@ -2609,20 +2676,25 @@ nodeType* ex(nodeType *root) {
         }
         if (oper == _typeRead) {
             // printf("read ");
-            printf("read\n");
+            // printf("read\n");
+            // printNode(root);
+            // printf("\n");
             if (root->opr.ops[0]->type == _id) {
                 nodeType *left = ex(root->opr.ops[0]);
                 int __i;
                 scanf(" %d", &__i);
                 // sym_table[root->opr.ops[0]->id.i] = __i;
                 setValue(left, __i);
-            } else if (root->opr.ops[0]->type == _typeArrayIndex) {
+            } else if (root->opr.ops[0]->opr.oper == _typeArrayIndex) {
                 nodeType *arr = ex(root->opr.ops[0]);
                 nodeType *arrId = ex(arr->opr.ops[0]);
                 nodeType *index = ex(arr->opr.ops[1]);
                 int __i;
                 scanf(" %d", &__i);
                 setArrValue(arrId, getValue(index), __i);
+            } else {
+                printf("Unknown read : ");
+                printNode(root->opr.ops[0]);
             }
             return NULL;
         }
