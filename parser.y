@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include "sym.h"
-
+FILE *fp;
 extern int yylex();
 extern int yyparse();
 extern void yyerror(const char *s);
@@ -450,11 +450,11 @@ void setArrValue(nodeType *arr, int index, int value) {
 void printNode(nodeType *p) {
     if (!p) return;
     if (p->type == _conInt) {
-        printf("%d", p->conInt.value);
+        fprintf(fp, "%d", p->conInt.value);
     } else if (p->type == _conStr) {
-        printf("%s", p->conStr.value);
+        fprintf(fp, "%s", p->conStr.value);
     } else if (p->type == _id) {
-        printf("%d", p->id.i);
+        fprintf(fp, "%d", p->id.i);
     } else if (p->type == _opr) {
         switch(p->opr.oper) {
             case _typeAdd: printf("+"); break;
@@ -487,15 +487,15 @@ void printNode(nodeType *p) {
             case _typeArrayIndex: printf("array-index"); break;
             case _typeProgram: printf("program"); break;
         }
-        printf("(");
+        fprintf(fp, "(");
         for(int i = 0; i < p->opr.nops; i++) {
             printNode(p->opr.ops[i]);
             if (i < p->opr.nops - 1) {
-                printf(", ");
+                fprintf(fp, ", ");
             
             }
         }
-        printf(")");
+        fprintf(fp, ", ");
     }
 }
 
@@ -918,6 +918,13 @@ void initSymTable() {
 }
 
 int main(int argc, char* argv[]) {
+
+    fp = fopen("syntaxtree.txt", "w");
+    if (fp == NULL) {
+        printf("Error opening file!\n");
+        return 1;
+    }
+
     if(argc < 2) {
         printf("Usage: %s <input_file>\n", argv[0]);
         return 1;
@@ -937,6 +944,7 @@ int main(int argc, char* argv[]) {
     }
     
     yyparse();
+    fclose(fp);
     return 0;
 }
 
