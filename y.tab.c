@@ -220,6 +220,8 @@ void freeNode(nodeType *p);
 
 nodeType *ex(nodeType *root);
 
+void printSymTable();
+
 
 
 /* Enabling traces.  */
@@ -242,7 +244,7 @@ nodeType *ex(nodeType *root);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 54 "parser.y"
+#line 56 "parser.y"
 {
   char *sval;
   int ival;
@@ -250,7 +252,7 @@ typedef union YYSTYPE
   nodeType *nPtr;
 }
 /* Line 193 of yacc.c.  */
-#line 254 "y.tab.c"
+#line 256 "y.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -263,7 +265,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 267 "y.tab.c"
+#line 269 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -576,12 +578,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    82,    82,    86,    90,    94,    98,   102,   106,   110,
-     114,   118,   122,   126,   130,   134,   138,   142,   146,   148,
-     152,   156,   160,   164,   168,   172,   176,   182,   186,   191,
-     196,   201,   206,   211,   216,   221,   227,   233,   239,   245,
-     251,   257,   261,   267,   274,   276,   278,   280,   282,   286,
-     290,   295,   300,   304,   308,   312,   314,   316
+       0,    84,    84,    88,    92,    96,   100,   104,   108,   112,
+     116,   120,   124,   128,   132,   136,   140,   144,   148,   150,
+     154,   158,   162,   166,   170,   174,   178,   184,   188,   193,
+     198,   203,   208,   213,   218,   223,   229,   235,   241,   247,
+     253,   259,   263,   269,   276,   278,   280,   282,   284,   288,
+     292,   297,   302,   306,   310,   314,   316,   318
 };
 #endif
 
@@ -1584,173 +1586,173 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 82 "parser.y"
+#line 84 "parser.y"
     {
         (yyval.nPtr) = conStr((yyvsp[(1) - (1)].sval));
 }
     break;
 
   case 3:
-#line 86 "parser.y"
+#line 88 "parser.y"
     {
         (yyval.nPtr) = conInt((yyvsp[(1) - (1)].ival));
 }
     break;
 
   case 4:
-#line 90 "parser.y"
+#line 92 "parser.y"
     {
         (yyval.nPtr) = id((yyvsp[(1) - (1)].sIndex));
 }
     break;
 
   case 5:
-#line 94 "parser.y"
+#line 96 "parser.y"
     {
         (yyval.nPtr) = opr(_typeArrayIndex, 2, (yyvsp[(1) - (4)].nPtr), (yyvsp[(3) - (4)].nPtr));
 }
     break;
 
   case 6:
-#line 98 "parser.y"
+#line 100 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
 }
     break;
 
   case 7:
-#line 102 "parser.y"
+#line 104 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
         }
     break;
 
   case 8:
-#line 106 "parser.y"
+#line 108 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
         }
     break;
 
   case 9:
-#line 110 "parser.y"
+#line 112 "parser.y"
     {
         (yyval.nPtr) = opr(_typeAdd, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
 }
     break;
 
   case 10:
-#line 114 "parser.y"
+#line 116 "parser.y"
     {
         (yyval.nPtr) = opr(_typeSub, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 11:
-#line 118 "parser.y"
+#line 120 "parser.y"
     {
         (yyval.nPtr) = opr(_typeMul, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 12:
-#line 122 "parser.y"
+#line 124 "parser.y"
     {
         (yyval.nPtr) = opr(_typeMod, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 13:
-#line 126 "parser.y"
+#line 128 "parser.y"
     {
         (yyval.nPtr) = opr(_typeDiv, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 14:
-#line 130 "parser.y"
+#line 132 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr);
       }
     break;
 
   case 15:
-#line 134 "parser.y"
+#line 136 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
       }
     break;
 
   case 16:
-#line 138 "parser.y"
+#line 140 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(2) - (2)].nPtr);
 }
     break;
 
   case 17:
-#line 142 "parser.y"
+#line 144 "parser.y"
     {
         (yyval.nPtr) = opr(_typeDecls, 2, (yyvsp[(1) - (2)].nPtr), (yyvsp[(2) - (2)].nPtr));
 }
     break;
 
   case 18:
-#line 146 "parser.y"
+#line 148 "parser.y"
     {(yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 19:
-#line 148 "parser.y"
+#line 150 "parser.y"
     {
         (yyval.nPtr) = opr(_typeMultId, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
 }
     break;
 
   case 20:
-#line 152 "parser.y"
+#line 154 "parser.y"
     {
             (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
           }
     break;
 
   case 21:
-#line 156 "parser.y"
+#line 158 "parser.y"
     {
     (yyval.nPtr) = opr(_typeDecl, 2, (yyvsp[(1) - (4)].nPtr), (yyvsp[(3) - (4)].nPtr));
 }
     break;
 
   case 22:
-#line 160 "parser.y"
+#line 162 "parser.y"
     {
         (yyval.nPtr) = opr(_typeDeclArray, 4, (yyvsp[(1) - (11)].nPtr), (yyvsp[(5) - (11)].nPtr), (yyvsp[(7) - (11)].nPtr), (yyvsp[(10) - (11)].nPtr));
       }
     break;
 
   case 23:
-#line 164 "parser.y"
+#line 166 "parser.y"
     {
     (yyval.nPtr) = opr(_typeInt, 0);
 }
     break;
 
   case 24:
-#line 168 "parser.y"
+#line 170 "parser.y"
     {
     (yyval.nPtr) = opr(_typeChar, 0);
             }
     break;
 
   case 25:
-#line 172 "parser.y"
+#line 174 "parser.y"
     {
     (yyval.nPtr) = opr(_typeReal, 0);
             }
     break;
 
   case 26:
-#line 176 "parser.y"
+#line 178 "parser.y"
     {
     (yyval.nPtr) = opr(_typeBoolean, 0);
             
@@ -1758,14 +1760,14 @@ yyreduce:
     break;
 
   case 27:
-#line 182 "parser.y"
+#line 184 "parser.y"
     {
         (yyval.nPtr) = opr(_typeRead, 1, (yyvsp[(3) - (5)].nPtr));
 }
     break;
 
   case 28:
-#line 186 "parser.y"
+#line 188 "parser.y"
     {
         // printf("func call read\n");
         (yyval.nPtr) = opr(_typeRead, 1, (yyvsp[(3) - (5)].nPtr));
@@ -1773,7 +1775,7 @@ yyreduce:
     break;
 
   case 29:
-#line 191 "parser.y"
+#line 193 "parser.y"
     {
         // printf("func call write\n");
         (yyval.nPtr) = opr(_typeWrite, 1, (yyvsp[(3) - (5)].nPtr));
@@ -1781,7 +1783,7 @@ yyreduce:
     break;
 
   case 30:
-#line 196 "parser.y"
+#line 198 "parser.y"
     {
 //     printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = opr(_typeArgs, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
@@ -1789,7 +1791,7 @@ yyreduce:
     break;
 
   case 31:
-#line 201 "parser.y"
+#line 203 "parser.y"
     {
         // printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
@@ -1797,7 +1799,7 @@ yyreduce:
     break;
 
   case 32:
-#line 206 "parser.y"
+#line 208 "parser.y"
     {
         // printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = opr(_typeArgs, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
@@ -1805,7 +1807,7 @@ yyreduce:
     break;
 
   case 33:
-#line 211 "parser.y"
+#line 213 "parser.y"
     {
         // printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
@@ -1813,7 +1815,7 @@ yyreduce:
     break;
 
   case 34:
-#line 216 "parser.y"
+#line 218 "parser.y"
     {
         // printf("%s = %s\n", $1, $4);
         (yyval.nPtr) = opr(_typeAssign, 2, (yyvsp[(1) - (5)].nPtr), (yyvsp[(4) - (5)].nPtr));
@@ -1821,7 +1823,7 @@ yyreduce:
     break;
 
   case 35:
-#line 221 "parser.y"
+#line 223 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "=", $3);
@@ -1830,7 +1832,7 @@ yyreduce:
     break;
 
   case 36:
-#line 227 "parser.y"
+#line 229 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "<>", $3);
@@ -1839,7 +1841,7 @@ yyreduce:
     break;
 
   case 37:
-#line 233 "parser.y"
+#line 235 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "<", $3);
@@ -1848,7 +1850,7 @@ yyreduce:
     break;
 
   case 38:
-#line 239 "parser.y"
+#line 241 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "<=", $3);
@@ -1857,7 +1859,7 @@ yyreduce:
     break;
 
   case 39:
-#line 245 "parser.y"
+#line 247 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, ">", $3);
@@ -1866,7 +1868,7 @@ yyreduce:
     break;
 
   case 40:
-#line 251 "parser.y"
+#line 253 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, ">=", $3);
@@ -1875,14 +1877,14 @@ yyreduce:
     break;
 
   case 41:
-#line 257 "parser.y"
+#line 259 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr);
 }
     break;
 
   case 42:
-#line 261 "parser.y"
+#line 263 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "and", $3);
@@ -1891,7 +1893,7 @@ yyreduce:
     break;
 
   case 43:
-#line 267 "parser.y"
+#line 269 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "or", $3);
@@ -1900,41 +1902,41 @@ yyreduce:
     break;
 
   case 44:
-#line 274 "parser.y"
-    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
-    break;
-
-  case 45:
 #line 276 "parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
-  case 46:
+  case 45:
 #line 278 "parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
-  case 47:
+  case 46:
 #line 280 "parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
-  case 48:
+  case 47:
 #line 282 "parser.y"
+    { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
+    break;
+
+  case 48:
+#line 284 "parser.y"
     {
         (yyval.nPtr) = opr(_typeBody, 2, (yyvsp[(1) - (2)].nPtr), (yyvsp[(2) - (2)].nPtr));
 }
     break;
 
   case 49:
-#line 286 "parser.y"
+#line 288 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
 }
     break;
 
   case 50:
-#line 290 "parser.y"
+#line 292 "parser.y"
     {
         // printf("end if\n");
         (yyval.nPtr) = opr(_typeIf, 2, (yyvsp[(2) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr));
@@ -1942,57 +1944,58 @@ yyreduce:
     break;
 
   case 51:
-#line 295 "parser.y"
+#line 297 "parser.y"
     {
         (yyval.nPtr) = opr(_typeIfElse, 3, (yyvsp[(2) - (11)].nPtr), (yyvsp[(5) - (11)].nPtr), (yyvsp[(9) - (11)].nPtr));
 }
     break;
 
   case 52:
-#line 300 "parser.y"
+#line 302 "parser.y"
     {
         (yyval.nPtr) = opr(_typeWhile, 2, (yyvsp[(2) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr));
 }
     break;
 
   case 53:
-#line 304 "parser.y"
+#line 306 "parser.y"
     {
         (yyval.nPtr) = opr(_typeForRange, 3, (yyvsp[(1) - (6)].nPtr), (yyvsp[(4) - (6)].nPtr), (yyvsp[(6) - (6)].nPtr));
 }
     break;
 
   case 54:
-#line 308 "parser.y"
+#line 310 "parser.y"
     {
         (yyval.nPtr) = opr(_typeFor, 2, (yyvsp[(2) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr));
 }
     break;
 
   case 55:
-#line 312 "parser.y"
-    {(yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
-    break;
-
-  case 56:
 #line 314 "parser.y"
     {(yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
-  case 57:
+  case 56:
 #line 316 "parser.y"
+    {(yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
+    break;
+
+  case 57:
+#line 318 "parser.y"
     {
         (yyval.nPtr) = opr(_typeProgram, 3, (yyvsp[(2) - (8)].nPtr), (yyvsp[(4) - (8)].nPtr), (yyvsp[(6) - (8)].nPtr));
         printNode((yyval.nPtr));
         decEx((yyvsp[(4) - (8)].nPtr));
-        printf("Decl done\n");
+        // printf("Decl done\n");
         ex((yyvsp[(6) - (8)].nPtr));
+        printSymTable();
 }
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1996 "y.tab.c"
+#line 1999 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2206,7 +2209,7 @@ yyreturn:
 }
 
 
-#line 327 "parser.y"
+#line 330 "parser.y"
 
 
 nodeType *conInt(int value) {
@@ -2379,6 +2382,62 @@ void printNode(nodeType *p) {
     fprintf(yyout, "]");
 }
 
+void printSymTable() {
+    printf("\n\n---------- SYMBOL TABLE ----------\n\n");
+    for (int i = 0; i < MAX_SYMBOLS; ++i) {
+        if (sym_table[i].declared) {
+            printf("%d : ", i);
+            if (sym_table[i].dt == _dtInt)
+                printf("INT %d\n", sym_table[i].intValue);
+            else if (sym_table[i].dt == _dtBool)
+                printf("BOOL %d\n", sym_table[i].intValue);
+            else if (sym_table[i].dt == _dtChar)
+                printf("CHAR %c\n", sym_table[i].charValue);
+            else if (sym_table[i].dt == _dtReal)
+                printf("REAL %f\n", sym_table[i].realValue);
+            else if (sym_table[i].dt == _dtIntArr) {
+                printf("ARRAY INT ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%d", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtRealArr) {
+                printf("ARRAY REAL ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%f", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtCharArr) {
+                printf("ARRAY CHAR ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%c", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtBoolArr) {
+                printf("ARRAY BOOL ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%d", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else {
+                printf("UNKNOWN\n");
+            }
+        }
+    }
+}
+
 int getValue(nodeType *p) {
     if (p->type == _conInt) {
         return p->conInt.value;
@@ -2429,10 +2488,10 @@ void setValue(nodeType *p, int value) {
 
 dataType getDt(nodeType *p) {
     if (p == NULL) return _dtEmpty;
-    if (p->type == _typeInt) return _dtInt;
-    if (p->type == _typeReal) return _dtReal;
-    if (p->type == _typeChar) return _dtChar;
-    if (p->type == _typeBoolean) return _dtBool;
+    if (p->opr.oper == _typeInt) return _dtInt;
+    if (p->opr.oper == _typeReal) return _dtReal;
+    if (p->opr.oper == _typeChar) return _dtChar;
+    if (p->opr.oper == _typeBoolean) return _dtBool;
     return _dtEmpty;
 }
 

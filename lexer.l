@@ -66,6 +66,7 @@ int fake=0;
   return STR;
 }
 [a-zA-Z][a-zA-Z0-9_]* {
+  printf("%s : %d\n", yytext, sym_hash(yytext));
   yylval.sIndex = sym_hash(yytext);
   return ID;
 }

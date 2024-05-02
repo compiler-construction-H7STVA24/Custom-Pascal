@@ -49,6 +49,8 @@ void freeNode(nodeType *p);
 
 nodeType *ex(nodeType *root);
 
+void printSymTable();
+
 %}
 
 %union {
@@ -317,8 +319,9 @@ program : KEY_PROGRAM identifier SEMICOLON decl_top KEY_BEGIN body KEY_END DOT {
         $$ = opr(_typeProgram, 3, $2, $4, $6);
         printNode($$);
         decEx($4);
-        printf("Decl done\n");
+        // printf("Decl done\n");
         ex($6);
+        printSymTable();
 }
 
 // demo : expr {
@@ -496,6 +499,62 @@ void printNode(nodeType *p) {
     fprintf(yyout, "]");
 }
 
+void printSymTable() {
+    printf("\n\n---------- SYMBOL TABLE ----------\n\n");
+    for (int i = 0; i < MAX_SYMBOLS; ++i) {
+        if (sym_table[i].declared) {
+            printf("%d : ", i);
+            if (sym_table[i].dt == _dtInt)
+                printf("INT %d\n", sym_table[i].intValue);
+            else if (sym_table[i].dt == _dtBool)
+                printf("BOOL %d\n", sym_table[i].intValue);
+            else if (sym_table[i].dt == _dtChar)
+                printf("CHAR %c\n", sym_table[i].charValue);
+            else if (sym_table[i].dt == _dtReal)
+                printf("REAL %f\n", sym_table[i].realValue);
+            else if (sym_table[i].dt == _dtIntArr) {
+                printf("ARRAY INT ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%d", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtRealArr) {
+                printf("ARRAY REAL ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%f", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtCharArr) {
+                printf("ARRAY CHAR ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%c", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtBoolArr) {
+                printf("ARRAY BOOL ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%d", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else {
+                printf("UNKNOWN\n");
+            }
+        }
+    }
+}
+
 int getValue(nodeType *p) {
     if (p->type == _conInt) {
         return p->conInt.value;
@@ -546,10 +605,10 @@ void setValue(nodeType *p, int value) {
 
 dataType getDt(nodeType *p) {
     if (p == NULL) return _dtEmpty;
-    if (p->type == _typeInt) return _dtInt;
-    if (p->type == _typeReal) return _dtReal;
-    if (p->type == _typeChar) return _dtChar;
-    if (p->type == _typeBoolean) return _dtBool;
+    if (p->opr.oper == _typeInt) return _dtInt;
+    if (p->opr.oper == _typeReal) return _dtReal;
+    if (p->opr.oper == _typeChar) return _dtChar;
+    if (p->opr.oper == _typeBoolean) return _dtBool;
     return _dtEmpty;
 }
 
