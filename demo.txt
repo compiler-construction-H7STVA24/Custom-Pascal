@@ -2,8 +2,8 @@ program ArrayAverage;
 var
   numbers: array[1..5] of Integer;
   sum : Integer;
-  ans : integer;
+  ans : Integer;
 begin
-  ans := 5 + 5;
+  ans := 16 % 5;
   write("ans = ", ans);
 end.

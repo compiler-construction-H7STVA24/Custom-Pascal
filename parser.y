@@ -809,31 +809,115 @@ nodeType* ex(nodeType *root) {
                 printf("ERRRRRRRR\n");
                 return conInt(getValue(left) + getValue(right));
              }
-            // if (getDt(left) != getDt(right)) {
-            //     // cust_err("Type mismatch");
-            //     printf("additon error \n",);
-            //     exit(1);
-            // }
-            // return conInt(getValue(left) + getValue(right));
         }
         if (oper == _typeSub) {
             nodeType *left =  ex(root->opr.ops[0]);
             nodeType *right = ex(root->opr.ops[1]);
-            return conInt(getValue(left) - getValue(right));
+            if (left == NULL) printf("lnull\n");
+            if (right == NULL) printf("rnull\n");
+              dataType leftType = getDt(left);
+             dataType rightType = getDt(right);
+            //  printf("DT = %d %d\n", leftType, rightType);
+             if (leftType == _dtInt && rightType == _dtReal) {
+            // // Convert integer to float and perform addition
+                float result = left->conInt.value - right->conReal.value;
+                // printf("%0.2f",result);
+                return conReal(left->conInt.value - right->conReal.value);
+             } else if (leftType == _dtInt && rightType == _dtInt) {
+            // // Convert integer to float and perform addition
+                int result = left->conInt.value - right->conInt.value;
+                // printf("%0.2f",result);
+                return conInt(result);
+             } else if (leftType == _dtReal && rightType == _dtInt) {
+            // // Convert integer to float and perform addition
+                float result = left->conReal.value - right->conInt.value;
+                // printf("%0.2f",result);
+                return conReal(result);
+             } else if (leftType == _dtReal && rightType == _dtReal) {
+            // // Convert integer to float and perform addition
+                float result = left->conReal.value - right->conReal.value;
+                // printf("%0.2f",result);
+                return conReal(result);
+             } else {
+                printf("ERRRRRRRR\n");
+                return conInt(getValue(left) - getValue(right));
+             }
         }
         if (oper == _typeMul) {
             nodeType *left =  ex(root->opr.ops[0]);
             nodeType *right = ex(root->opr.ops[1]);
-            return conInt(getValue(left) * getValue(right));
+            if (left == NULL) printf("lnull\n");
+            if (right == NULL) printf("rnull\n");
+              dataType leftType = getDt(left);
+             dataType rightType = getDt(right);
+            //  printf("DT = %d %d\n", leftType, rightType);
+             if (leftType == _dtInt && rightType == _dtReal) {
+            // // Convert integer to float and perform addition
+                float result = left->conInt.value * right->conReal.value;
+                // printf("%0.2f",result);
+                return conReal(left->conInt.value * right->conReal.value);
+             } else if (leftType == _dtInt && rightType == _dtInt) {
+            // // Convert integer to float and perform addition
+                int result = left->conInt.value * right->conInt.value;
+                // printf("%0.2f",result);
+                return conInt(result);
+             } else if (leftType == _dtReal && rightType == _dtInt) {
+            // // Convert integer to float and perform addition
+                float result = left->conReal.value * right->conInt.value;
+                // printf("%0.2f",result);
+                return conReal(result);
+             } else if (leftType == _dtReal && rightType == _dtReal) {
+            // // Convert integer to float and perform addition
+                float result = left->conReal.value * right->conReal.value;
+                // printf("%0.2f",result);
+                return conReal(result);
+             } else {
+                printf("ERRRRRRRR\n");
+                return conInt(getValue(left) * getValue(right));
+             }
         }
         if (oper == _typeDiv) {
             nodeType *left =  ex(root->opr.ops[0]);
             nodeType *right = ex(root->opr.ops[1]);
-            return conInt(getValue(left) / getValue(right));
+            if (left == NULL) printf("lnull\n");
+            if (right == NULL) printf("rnull\n");
+              dataType leftType = getDt(left);
+             dataType rightType = getDt(right);
+            //  printf("DT = %d %d\n", leftType, rightType);
+             if (leftType == _dtInt && rightType == _dtReal) {
+            // // Convert integer to float and perform addition
+                float result = (float)left->conInt.value / right->conReal.value;
+                // printf("%0.2f",result);
+                return conReal(left->conInt.value / right->conReal.value);
+             } else if (leftType == _dtInt && rightType == _dtInt) {
+            // // Convert integer to float and perform addition
+                float result = (float)left->conInt.value / (float)right->conInt.value;
+                // printf("%0.2f",result);
+                return conReal(result);
+             } else if (leftType == _dtReal && rightType == _dtInt) {
+            // // Convert integer to float and perform addition
+                float result = left->conReal.value / (float)right->conInt.value;
+                // printf("%0.2f",result);
+                return conReal(result);
+             } else if (leftType == _dtReal && rightType == _dtReal) {
+            // // Convert integer to float and perform addition
+                float result = left->conReal.value / right->conReal.value;
+                // printf("%0.2f",result);
+                return conReal(result);
+             } else {
+                printf("ERRRRRRRR\n");
+                return conInt(getValue(left) / getValue(right));
+             }
         }
         if (oper == _typeMod) {
             nodeType *left =  ex(root->opr.ops[0]);
             nodeType *right = ex(root->opr.ops[1]);
+                dataType leftType = getDt(left);
+             dataType rightType = getDt(right);
+             if(leftType != _dtInt || rightType != _dtInt) {
+                cust_err("Invalid data types for modulo operation");
+                exit(1);
+             }
             return conInt(getValue(left) % getValue(right));
         }
         if (oper == _typeAssign) {
