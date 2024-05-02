@@ -127,4 +127,4 @@ typedef struct
 
 extern unsigned long sym_hash(char *str);
 extern symNode sym_table[MAX_SYMBOLS];
-extern VarHashPair var_hash_table[MAX_SYMBOLS];
+extern char *var_hash_table[MAX_SYMBOLS];
