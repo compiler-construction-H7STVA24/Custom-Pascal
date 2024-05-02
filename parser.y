@@ -491,10 +491,6 @@ void printNode(nodeType *p) {
         
         for(int i = 0; i < p->opr.nops; i++) {
             printNode(p->opr.ops[i]);
-            if (i < p->opr.nops - 1) {
-                fprintf(yyout, ", ");
-            
-            }
         }
     }
     fprintf(yyout, "]");
