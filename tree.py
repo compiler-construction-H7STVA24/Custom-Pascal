@@ -1,7 +1,7 @@
 from nltk.tree import Tree
 
 # Read the AST from the syntaxtree.txt file
-with open('syntaxtree.txt', 'r') as file:
+with open('output.txt', 'r') as file:
     text = file.read().strip()
 
 # Replace special characters as per the rules
@@ -22,4 +22,5 @@ def format_tree(tree, indent=0):
     return formatted_text
 
 # Print the formatted tree
-print(format_tree(tree))
+with open('t.txt', 'w') as f:
+    f.write(format_tree(tree))

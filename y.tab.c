@@ -2332,54 +2332,55 @@ void setArrValue(nodeType *arr, int index, int value) {
 
 void printNode(nodeType *p) {
     if (!p) return;
+    fprintf(yyout, "[");
     if (p->type == _conInt) {
-        printf("%d", p->conInt.value);
+        fprintf(yyout, "%d", p->conInt.value);
     } else if (p->type == _conStr) {
-        printf("%s", p->conStr.value);
+        fprintf(yyout, "%s", p->conStr.value);
     } else if (p->type == _id) {
-        printf("%d", p->id.i);
+        fprintf(yyout, "%d", p->id.i);
     } else if (p->type == _opr) {
         switch(p->opr.oper) {
-            case _typeAdd: printf("+"); break;
-            case _typeSub: printf("-"); break;
-            case _typeMul: printf("*"); break;
-            case _typeDiv: printf("/"); break;
-            case _typeMod: printf("%%"); break;
-            case _typeAssign: printf("="); break;
-            case _typeEE: printf("=="); break;
-            case _typeNE: printf("!="); break;
-            case _typeLT: printf("<"); break;
-            case _typeLE: printf("<="); break;
-            case _typeGT: printf(">"); break;
-            case _typeGE: printf(">="); break;
-            case _typeAnd: printf("&&"); break;
-            case _typeOr: printf("||"); break;
-            case _typeIf: printf("if"); break;
-            case _typeIfElse: printf("if-else"); break;
-            case _typeWhile: printf("while"); break;
-            case _typeFor: printf("for"); break;
-            case _typeForRange: printf("for-range"); break;
-            case _typeRead: printf("read"); break;
-            case _typeWrite: printf("write"); break;
-            case _typeBody: printf("body"); break;
-            case _typeDecls: printf("decls"); break;
-            case _typeDecl: printf("decl"); break;
-            case _typeDeclArray: printf("decl-array"); break;
-            case _typeArgs: printf("args"); break;
-            case _typeMultId: printf("mult-id"); break;
-            case _typeArrayIndex: printf("array-index"); break;
-            case _typeProgram: printf("program"); break;
+            case _typeAdd: fprintf(yyout, "+"); break;
+            case _typeSub: fprintf(yyout, "-"); break;
+            case _typeMul: fprintf(yyout, "*"); break;
+            case _typeDiv: fprintf(yyout, "/"); break;
+            case _typeMod: fprintf(yyout, "%%"); break;
+            case _typeAssign: fprintf(yyout, "="); break;
+            case _typeEE: fprintf(yyout, "=="); break;
+            case _typeNE: fprintf(yyout, "!="); break;
+            case _typeLT: fprintf(yyout, "<"); break;
+            case _typeLE: fprintf(yyout, "<="); break;
+            case _typeGT: fprintf(yyout, ">"); break;
+            case _typeGE: fprintf(yyout, ">="); break;
+            case _typeAnd: fprintf(yyout, "&&"); break;
+            case _typeOr: fprintf(yyout, "||"); break;
+            case _typeIf: fprintf(yyout, "if"); break;
+            case _typeIfElse: fprintf(yyout, "if-else"); break;
+            case _typeWhile: fprintf(yyout, "while"); break;
+            case _typeFor: fprintf(yyout, "for"); break;
+            case _typeForRange: fprintf(yyout, "for-range"); break;
+            case _typeRead: fprintf(yyout, "read"); break;
+            case _typeWrite: fprintf(yyout, "write"); break;
+            case _typeBody: fprintf(yyout, "body"); break;
+            case _typeDecls: fprintf(yyout, "decls"); break;
+            case _typeDecl: fprintf(yyout, "decl"); break;
+            case _typeDeclArray: fprintf(yyout, "decl-array"); break;
+            case _typeArgs: fprintf(yyout, "args"); break;
+            case _typeMultId: fprintf(yyout, "mult-id"); break;
+            case _typeArrayIndex: fprintf(yyout, "array-index"); break;
+            case _typeProgram: fprintf(yyout, "program"); break;
         }
-        printf("(");
+        
         for(int i = 0; i < p->opr.nops; i++) {
             printNode(p->opr.ops[i]);
             if (i < p->opr.nops - 1) {
-                printf(", ");
+                fprintf(yyout, ", ");
             
             }
         }
-        printf(")");
     }
+    fprintf(yyout, "]");
 }
 
 int getValue(nodeType *p) {
