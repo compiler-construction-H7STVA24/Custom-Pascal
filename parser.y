@@ -14,14 +14,28 @@ extern FILE* yyin;
 extern FILE* yyout;
 
 int k = 1;
-int f = 1;
+int l = 1;
 int w = 1;
+
+int tacLineNo = 1;
 
 void gencode(char *word, char *first, char *op, char *second) {
         char temp[10];
         sprintf(temp, "%d", k++);
         strcat(word, temp);
-        printf("%s = %s %s %s\n", word, first, op, second);
+        fprintf(yyout, "%s %s %s %s\n", op, first, second, word);
+}
+
+void onlyGencode(char *word) {
+    char temp[10];
+    sprintf(temp, "%d", k++);
+    strcat(word, temp);
+}
+
+void genlabel(char *word) {
+    char temp[10];
+    sprintf(temp, "%d", l++);
+    strcat(word, temp);
 }
 
 symNode sym_table[MAX_SYMBOLS];
@@ -58,6 +72,10 @@ char* getName(int hash) {
 void setName(int hash, char* name) {
     sym_names[hash] = strdup(name);
 } 
+
+void printSymTable();
+
+char *generateTAC(nodeType *, int);
 
 %}
 
@@ -333,10 +351,12 @@ loop : for_loop {$$ = $1;}
 
 program : KEY_PROGRAM identifier SEMICOLON decl_top KEY_BEGIN body KEY_END DOT {
         $$ = opr(_typeProgram, 3, $2, $4, $6);
-        printNode($$);
+        generateTAC($6, 0);
+        // printNode($$);
         decEx($4);
-        printf("Decl done\n");
+        // printf("Decl done\n");
         ex($6);
+        printSymTable();
 }
 
 // demo : expr {
@@ -429,6 +449,327 @@ nodeType *opr(typeEnum oper, int nops, ...) {
     }
     va_end(ap);
     return p;
+}
+
+char *generateTAC(nodeType *root, int isBool) {
+    if (root == NULL) return "";
+    if (root->type == _conInt) {
+        char *temp = malloc(10);
+        sprintf(temp, "%d", root->conInt.value);
+        // ++tacLineNo;
+        return temp;
+    } else if (root->type == _conReal) {
+        char *temp = malloc(10);
+        sprintf(temp, "%f", root->conReal.value);
+        // ++tacLineNo;
+        return temp;
+    } else if (root->type == _conStr) {
+        return strdup(root->conStr.value);
+    } else if (root->type == _id) {
+        return getName(root->id.i);
+    } else if (root->type == _opr) {
+        typeEnum oper = root->opr.oper;
+        if (oper == _typeAdd) {
+            char *arg1 = generateTAC(root->opr.ops[0], isBool);
+            char *arg2 = generateTAC(root->opr.ops[1], isBool);
+            char *temp = strdup("t");
+            gencode(temp, arg1, "PLUS", arg2);
+            ++tacLineNo;
+            return temp;
+        } else if (oper == _typeSub) {
+            char *arg1 = generateTAC(root->opr.ops[0], isBool);
+            char *arg2 = generateTAC(root->opr.ops[1], isBool);
+            char *temp = strdup("t");
+            gencode(temp, arg1, "MINUS", arg2);
+            ++tacLineNo;
+            return temp;
+        } else if (oper == _typeMul) {
+            char *arg1 = generateTAC(root->opr.ops[0], isBool);
+            char *arg2 = generateTAC(root->opr.ops[1], isBool);
+            char *temp = strdup("t");
+            gencode(temp, arg1, "MUL", arg2);
+            ++tacLineNo;
+            return temp;
+        } else if (oper == _typeDiv) {
+            char *arg1 = generateTAC(root->opr.ops[0], isBool);
+            char *arg2 = generateTAC(root->opr.ops[1], isBool);
+            char *temp = strdup("t");
+            gencode(temp, arg1, "DIV", arg2);
+            ++tacLineNo;
+            return temp;
+        } else if (oper == _typeMod) {
+            char *arg1 = generateTAC(root->opr.ops[0], isBool);
+            char *arg2 = generateTAC(root->opr.ops[1], isBool);
+            char *temp = strdup("t");
+            gencode(temp, arg1, "MOD", arg2);
+            ++tacLineNo;
+            return temp;
+        } else if (oper == _typeAssign) {
+            char *arg1 = generateTAC(root->opr.ops[0], isBool);
+            char *arg2 = generateTAC(root->opr.ops[1], isBool);
+            // char *temp = strdup("t");
+            // gencode(temp, arg1, "ASS", arg2);
+            fprintf(yyout, "ASS %s %s\n", arg1, arg2);
+            ++tacLineNo;
+            return "";
+        } else if (oper == _typeEE) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " = ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            // gencode(temp, arg1, "EQ", arg2);
+            return temp;
+        } else if (oper == _typeNE) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " <> ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            return temp;
+        } else if (oper == _typeLT) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " < ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            return temp;
+        } else if (oper == _typeLE) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " <= ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            return temp;
+        } else if (oper == _typeGT) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " > ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            return temp;
+        } else if (oper == _typeGE) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " >= ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            return temp;
+        } else if (oper == _typeAnd) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " AND ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            return temp;
+        } else if (oper == _typeOr) {
+            char *arg1 = generateTAC(root->opr.ops[0], 1);
+            char *arg2 = generateTAC(root->opr.ops[1], 1);
+            char *temp = strdup("( ");
+            strcat(temp, arg1);
+            strcat(temp, " OR ");
+            strcat(temp, arg2);
+            strcat(temp, " )");
+            return temp;
+        } else if (oper == _typeIf) {
+            fprintf(yyout, "if %s goto %d\n", generateTAC(root->opr.ops[0], 1), tacLineNo + 2);
+            ++tacLineNo;
+            char *l = strdup("L");
+            genlabel(l);
+            fprintf(yyout, "goto %s\n", l);
+            ++tacLineNo;
+            generateTAC(root->opr.ops[1], 0);
+            fprintf(yyout, "%s: \n", l);
+            ++tacLineNo;
+            return "";
+        } else if (oper == _typeIfElse) {
+            int currLineNo = tacLineNo;
+            fprintf(yyout, "if %s goto %d\n", generateTAC(root->opr.ops[0], 1), tacLineNo + 3);
+            ++tacLineNo;
+            char *t = strdup("t");
+            onlyGencode(t);
+            fprintf(yyout, "%s = 0\n", t);
+            ++tacLineNo;
+            fprintf(yyout, "goto %d\n", tacLineNo + 2);
+            ++tacLineNo;
+            fprintf(yyout, "%s = 1\n", t);
+            ++tacLineNo;
+            char *l1 = strdup("L");
+            genlabel(l1);
+            fprintf(yyout, "if %s = 1 goto %s\n", t, l1);
+            ++tacLineNo;
+            generateTAC(root->opr.ops[2], 0);
+            char *l2 = strdup("L");
+            genlabel(l2);
+            fprintf(yyout, "goto %s\n", l2);
+            ++tacLineNo;
+            fprintf(yyout, "%s: ", l1);
+            generateTAC(root->opr.ops[1], 0);
+            fprintf(yyout, "%s: ", l2);
+            ++tacLineNo;
+            return "";
+        } else if (oper == _typeWhile) {
+            char *l = strdup("L");
+            genlabel(l);
+            fprintf(yyout, "%s: if %s goto %d\n", l, generateTAC(root->opr.ops[0], 1), tacLineNo + 3);
+            ++tacLineNo;
+            char *t1 = strdup("t");
+            onlyGencode(t1);
+            fprintf(yyout, "%s = 0\n", t1);
+            ++tacLineNo;
+            fprintf(yyout, "goto %d\n", tacLineNo + 2);
+            ++tacLineNo;
+            fprintf(yyout, "%s = 1\n", t1);
+            ++tacLineNo;
+            char *l1 = strdup("L");
+            genlabel(l1);
+            fprintf(yyout, "if %s = 0 goto %s\n", t1, l1);
+            generateTAC(root->opr.ops[1], 0);
+            fprintf(yyout, "goto %s\n", l);
+            ++tacLineNo;
+            fprintf(yyout, "%s: \n", l1);
+            return "";
+        } else if (oper == _typeFor) {
+            char *left = generateTAC(root->opr.ops[0], 0);
+            char i[20], en[20];
+            sscanf(left, "%s %s", i, en);
+            char *l1 = strdup("L");
+            genlabel(l1);
+            fprintf(yyout, "%s: if %s < %s goto %d\n", l1, i, en, tacLineNo + 3);
+            ++tacLineNo;
+            char *t0 = strdup("t");
+            onlyGencode(t0);
+            fprintf(yyout, "%s = 0\n", t0);
+            ++tacLineNo;
+            fprintf(yyout, "goto %d\n", tacLineNo + 2);
+            ++tacLineNo;
+            fprintf(yyout, "%s = 1\n", t0);
+            ++tacLineNo;
+            char *l2 = strdup("L");
+            genlabel(l2);
+            fprintf(yyout, "if %s = 0 goto %s\n", t0, l2);
+            ++tacLineNo;
+            generateTAC(root->opr.ops[1], 0);
+            fprintf(yyout, "goto %s\n", l1);
+            ++tacLineNo;
+            fprintf(yyout, "%s: \n", l2);
+            return "";
+        } else if (oper == _typeForRange) {
+            char *i = generateTAC(root->opr.ops[0], 0);
+            char *beg = generateTAC(root->opr.ops[1], 0);
+            char *en = generateTAC(root->opr.ops[2], 0);
+            fprintf(yyout, "%s = %s\n", i, beg);
+            ++tacLineNo;
+            char temp[20];
+            sprintf(temp, "%s %s", i, en);
+            return strdup(temp);
+        } else if (oper == _typeRead) {
+            return "";
+            // return strdup(temp);
+        } else if (oper == _typeWrite) {
+            // char *arg1 = generateTAC(root->opr.ops[0]);
+            // char *arg2 = generateTAC(root->opr.ops[1]);
+            // char *temp = strdup("t");
+            // gencode(temp, arg1, "EQ", arg2);
+            return "";
+        } else if (oper == _typeBody) {
+            char *arg1 = generateTAC(root->opr.ops[0], 0);
+            char *arg2 = generateTAC(root->opr.ops[1], 0);
+            // char *temp = strdup("t");
+            // gencode(temp, arg1, "EQ", arg2);
+            return "";
+        } else if (oper == _typeArgs) {
+            // char *arg1 = generateTAC(root->opr.ops[0]);
+            // char *arg2 = generateTAC(root->opr.ops[1]);
+            // char *temp = strdup("t");
+            // gencode(temp, arg1, "EQ", arg2);
+            return "";
+        } else if (oper == _typeArrayIndex) {
+            char *left = generateTAC(root->opr.ops[0], isBool);
+            char *right = generateTAC(root->opr.ops[1], isBool);
+            if (isBool) {
+                char temp[50];
+                sprintf(temp, "%s[%s]", left, right);
+                return strdup(temp);
+            }
+            char *temp = strdup("t");
+            gencode(temp, left, "INDEX", right);
+            ++tacLineNo;
+            return temp;
+        } else {
+            return "";
+        }
+    }
+}
+
+void printSymTable() {
+    printf("\n\n---------- SYMBOL TABLE ----------\n\n");
+    for (int i = 0; i < MAX_SYMBOLS; ++i) {
+        if (sym_table[i].declared) {
+            printf("%s : ", getName(i));
+            if (sym_table[i].dt == _dtInt)
+                printf("INT %d\n", sym_table[i].intValue);
+            else if (sym_table[i].dt == _dtBool)
+                printf("BOOL %d\n", sym_table[i].intValue);
+            else if (sym_table[i].dt == _dtChar)
+                printf("CHAR %c\n", sym_table[i].charValue);
+            else if (sym_table[i].dt == _dtReal)
+                printf("REAL %f\n", sym_table[i].realValue);
+            else if (sym_table[i].dt == _dtIntArr) {
+                printf("ARRAY INT ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%d", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtRealArr) {
+                printf("ARRAY REAL ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%f", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtCharArr) {
+                printf("ARRAY CHAR ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%c", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else if (sym_table[i].dt == _dtBoolArr) {
+                printf("ARRAY BOOL ");
+                printf("[");
+                for (int j = 0; j < sym_table[i].arrSize; ++j) {
+                    printf("%d", sym_table[i].intArrValue[j]);
+                    if (j != sym_table[i].arrSize - 1)
+                        printf(", ");
+                }
+                printf("]\n");
+            } else {
+                printf("UNKNOWN\n");
+            }
+        }
+    }
 }
 
 void freeNode(nodeType *p) {
@@ -645,6 +986,7 @@ dataType getDt(nodeType *p) {
     if (p->opr.oper == _typeReal) return _dtReal;
     if (p->opr.oper == _typeChar) return _dtChar;
     if (p->opr.oper == _typeBoolean) return _dtBool;
+    if (p->opr.oper == _typeArrayIndex) return getDt(p->opr.ops[0]);
     return _dtEmpty;
 }
 
@@ -653,6 +995,10 @@ dataType getArrDt(dataType dt) {
     if (dt == _dtReal) return _dtRealArr;
     if (dt == _dtChar) return _dtCharArr;
     if (dt == _dtBool) return _dtBoolArr;
+    if (dt == _dtIntArr) return _dtIntArr;
+    if (dt == _dtRealArr) return _dtRealArr;
+    if (dt == _dtCharArr) return _dtCharArr;
+    if (dt == _dtBoolArr) return _dtBoolArr;
     return _dtEmpty;
 }
 
@@ -787,22 +1133,22 @@ nodeType* ex(nodeType *root) {
             //  printf("DT = %d %d\n", leftType, rightType);
              if (leftType == _dtInt && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = left->conInt.value + right->conReal.value;
+                float result = (float)getValue(left) + getRealValue(right);
                 // printf("%0.2f",result);
-                return conReal(left->conInt.value + right->conReal.value);
+                return conReal(result);
              } else if (leftType == _dtInt && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                int result = left->conInt.value + right->conInt.value;
+                int result = getValue(left) + getValue(right);
                 // printf("%0.2f",result);
                 return conInt(result);
              } else if (leftType == _dtReal && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value + right->conInt.value;
+                float result = getRealValue(left) + (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else if (leftType == _dtReal && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value + right->conReal.value;
+                float result = getRealValue(left) + getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else {
@@ -820,22 +1166,22 @@ nodeType* ex(nodeType *root) {
             //  printf("DT = %d %d\n", leftType, rightType);
              if (leftType == _dtInt && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = left->conInt.value - right->conReal.value;
+                float result = (float)getValue(left) - getRealValue(right);
                 // printf("%0.2f",result);
-                return conReal(left->conInt.value - right->conReal.value);
+                return conReal(result);
              } else if (leftType == _dtInt && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                int result = left->conInt.value - right->conInt.value;
+                int result = getValue(left) - getValue(right);
                 // printf("%0.2f",result);
                 return conInt(result);
              } else if (leftType == _dtReal && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value - right->conInt.value;
+                float result = getRealValue(left) - (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else if (leftType == _dtReal && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value - right->conReal.value;
+                float result = getRealValue(left) - getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else {
@@ -853,27 +1199,27 @@ nodeType* ex(nodeType *root) {
             //  printf("DT = %d %d\n", leftType, rightType);
              if (leftType == _dtInt && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = left->conInt.value * right->conReal.value;
+                float result = (float)getValue(left) * getRealValue(right);
                 // printf("%0.2f",result);
-                return conReal(left->conInt.value * right->conReal.value);
+                return conReal(result);
              } else if (leftType == _dtInt && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                int result = left->conInt.value * right->conInt.value;
+                int result = getValue(left) * getValue(right);
                 // printf("%0.2f",result);
                 return conInt(result);
              } else if (leftType == _dtReal && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value * right->conInt.value;
+                float result = getRealValue(left) * (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else if (leftType == _dtReal && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value * right->conReal.value;
+                float result = getRealValue(left) * getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else {
                 printf("ERRRRRRRR\n");
-                return conInt(getValue(left) * getValue(right));
+                return conInt(getValue(left) - getValue(right));
              }
         }
         if (oper == _typeDiv) {
@@ -886,27 +1232,27 @@ nodeType* ex(nodeType *root) {
             //  printf("DT = %d %d\n", leftType, rightType);
              if (leftType == _dtInt && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = (float)left->conInt.value / right->conReal.value;
+                float result = (float)getValue(left) / getRealValue(right);
                 // printf("%0.2f",result);
-                return conReal(left->conInt.value / right->conReal.value);
+                return conReal(result);
              } else if (leftType == _dtInt && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                float result = (float)left->conInt.value / (float)right->conInt.value;
+                float result = (float)getValue(left) / (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else if (leftType == _dtReal && rightType == _dtInt) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value / (float)right->conInt.value;
+                float result = getRealValue(left) / (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else if (leftType == _dtReal && rightType == _dtReal) {
             // // Convert integer to float and perform addition
-                float result = left->conReal.value / right->conReal.value;
+                float result = getRealValue(left) / getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else {
                 printf("ERRRRRRRR\n");
-                return conInt(getValue(left) / getValue(right));
+                return conReal((float)getValue(left) / (float)getValue(right));
              }
         }
         if (oper == _typeMod) {
@@ -925,15 +1271,18 @@ nodeType* ex(nodeType *root) {
             nodeType *right = ex(root->opr.ops[1]);
             // sym_table[left->id.i] = getValue(right);
             // printf("ASSIGN\n");
-            if (getDt(left) != getDt(right)) {
+            if (getDt(left) != getDt(right) && getArrDt(getDt(left)) != getArrDt(getDt(right))) {
                 cust_err("Invalid data types for assignment\n");
                 exit(1);
             }
-            if (right->type == _conInt)
+            if (right->type == _conInt || getDt(right) == _dtIntArr) {
+                // printf("right = %i\n", getValue(right));
                 setValue(left, getValue(right));
-            else if (right->type == _conReal)
+            }
+            else if (right->type == _conReal|| getDt(right) == _dtRealArr)
                 setRealValue(left, getRealValue(right));
             else {
+
                 cust_err("Assignment Error");
                 exit(1);
             }
@@ -962,6 +1311,7 @@ nodeType* ex(nodeType *root) {
         if (oper == _typeGT) {
             nodeType *left = ex(root->opr.ops[0]);
             nodeType *right = ex(root->opr.ops[1]);
+            // printf("%d %d", getValue(left), getValue(right));
             return conBool(getValue(left) > getValue(right));
         }
         if (oper == _typeGE) {
@@ -998,6 +1348,7 @@ nodeType* ex(nodeType *root) {
         if (oper == _typeWhile) {
             nodeType *left = ex(root->opr.ops[0]);
             while (left->conBool.value) {
+                // printf("while\n");
                 // printf("while\n");
                 ex(root->opr.ops[1]);
                 left = ex(root->opr.ops[0]);

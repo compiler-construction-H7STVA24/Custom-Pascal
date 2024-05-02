@@ -1,1 +1,23 @@
-[program[623][decls[decl-array[889][1][5][]][decls[decl[202][]][decl[375][]]]][body[=[375][%[16][5]]][write[args[ans = ][375]]]]]
+i = 1
+L1: if i < 10 goto 5
+t1 = 0
+goto 6
+t1 = 1
+if t1 = 0 goto L2
+goto L1
+L2: 
+INDEX numbers 1 t2
+ASS maxValue t2
+i = 2
+L3: if i < 10 goto 14
+t3 = 0
+goto 15
+t3 = 1
+if t3 = 0 goto L4
+if ( numbers[i] > maxValue ) goto 18
+goto L5
+INDEX numbers i t4
+ASS maxValue t4
+L5: 
+goto L3
+L4: 
