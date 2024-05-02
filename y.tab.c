@@ -3021,31 +3021,34 @@ nodeType* ex(nodeType *root) {
             nodeType *right = ex(root->opr.ops[1]);
             if (left == NULL) printf("lnull\n");
             if (right == NULL) printf("rnull\n");
-              dataType leftType = getDt(left);
-             dataType rightType = getDt(right);
+              dataType leftType = getArrDt(getDt(left));
+            dataType rightType = getArrDt(getDt(right));
+            // printf("rt = %d\n", rightType);
             //  printf("DT = %d %d\n", leftType, rightType);
-             if (leftType == _dtInt && rightType == _dtReal) {
+             if (leftType == _dtIntArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = (float)getValue(left) + getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtInt && rightType == _dtInt) {
+             } else if (leftType == _dtIntArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 int result = getValue(left) + getValue(right);
                 // printf("%0.2f",result);
                 return conInt(result);
-             } else if (leftType == _dtReal && rightType == _dtInt) {
+             } else if (leftType == _dtRealArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) + (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtReal && rightType == _dtReal) {
+             } else if (leftType == _dtRealArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) + getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
              } else {
                 printf("ERRRRRRRR\n");
+                // printf("%d\n", right->opr.oper);
+                printf("%d %d\n", getValue(left), getValue(right));
                 return conInt(getValue(left) + getValue(right));
              }
         }
@@ -3054,25 +3057,25 @@ nodeType* ex(nodeType *root) {
             nodeType *right = ex(root->opr.ops[1]);
             if (left == NULL) printf("lnull\n");
             if (right == NULL) printf("rnull\n");
-              dataType leftType = getDt(left);
-             dataType rightType = getDt(right);
+              dataType leftType = getArrDt(getDt(left));
+             dataType rightType = getArrDt(getDt(right));
             //  printf("DT = %d %d\n", leftType, rightType);
-             if (leftType == _dtInt && rightType == _dtReal) {
+             if (leftType == _dtIntArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = (float)getValue(left) - getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtInt && rightType == _dtInt) {
+             } else if (leftType == _dtIntArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 int result = getValue(left) - getValue(right);
                 // printf("%0.2f",result);
                 return conInt(result);
-             } else if (leftType == _dtReal && rightType == _dtInt) {
+             } else if (leftType == _dtRealArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) - (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtReal && rightType == _dtReal) {
+             } else if (leftType == _dtRealArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) - getRealValue(right);
                 // printf("%0.2f",result);
@@ -3087,25 +3090,25 @@ nodeType* ex(nodeType *root) {
             nodeType *right = ex(root->opr.ops[1]);
             if (left == NULL) printf("lnull\n");
             if (right == NULL) printf("rnull\n");
-              dataType leftType = getDt(left);
-             dataType rightType = getDt(right);
+              dataType leftType = getArrDt(getDt(left));
+             dataType rightType = getArrDt(getDt(right));
             //  printf("DT = %d %d\n", leftType, rightType);
-             if (leftType == _dtInt && rightType == _dtReal) {
+             if (leftType == _dtIntArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = (float)getValue(left) * getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtInt && rightType == _dtInt) {
+             } else if (leftType == _dtIntArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 int result = getValue(left) * getValue(right);
                 // printf("%0.2f",result);
                 return conInt(result);
-             } else if (leftType == _dtReal && rightType == _dtInt) {
+             } else if (leftType == _dtRealArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) * (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtReal && rightType == _dtReal) {
+             } else if (leftType == _dtRealArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) * getRealValue(right);
                 // printf("%0.2f",result);
@@ -3120,25 +3123,25 @@ nodeType* ex(nodeType *root) {
             nodeType *right = ex(root->opr.ops[1]);
             if (left == NULL) printf("lnull\n");
             if (right == NULL) printf("rnull\n");
-              dataType leftType = getDt(left);
-             dataType rightType = getDt(right);
+              dataType leftType = getArrDt(getDt(left));
+             dataType rightType = getArrDt(getDt(right));
             //  printf("DT = %d %d\n", leftType, rightType);
-             if (leftType == _dtInt && rightType == _dtReal) {
+             if (leftType == _dtIntArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = (float)getValue(left) / getRealValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtInt && rightType == _dtInt) {
+             } else if (leftType == _dtIntArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 float result = (float)getValue(left) / (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtReal && rightType == _dtInt) {
+             } else if (leftType == _dtRealArr && rightType == _dtIntArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) / (float)getValue(right);
                 // printf("%0.2f",result);
                 return conReal(result);
-             } else if (leftType == _dtReal && rightType == _dtReal) {
+             } else if (leftType == _dtRealArr && rightType == _dtRealArr) {
             // // Convert integer to float and perform addition
                 float result = getRealValue(left) / getRealValue(right);
                 // printf("%0.2f",result);
@@ -3151,9 +3154,9 @@ nodeType* ex(nodeType *root) {
         if (oper == _typeMod) {
             nodeType *left =  ex(root->opr.ops[0]);
             nodeType *right = ex(root->opr.ops[1]);
-                dataType leftType = getDt(left);
-             dataType rightType = getDt(right);
-             if(leftType != _dtInt || rightType != _dtInt) {
+                dataType leftType = getArrDt(getDt(left));
+             dataType rightType = getArrDt(getDt(right));
+             if(leftType != _dtIntArr || rightType != _dtIntArr) {
                 cust_err("Invalid data types for modulo operation");
                 exit(1);
              }
@@ -3328,7 +3331,15 @@ nodeType* ex(nodeType *root) {
                         } else if (right->type == _conStr) {
                             printf("%s ", right->conStr.value);
                         } else if (right->type == _id) {
-                            printf("%f ", getValue(right));
+                            dataType id_dt = getIdType(right);
+                            if (id_dt == _dtReal)
+                                printf("%f ", getRealValue(right));
+                            else if (id_dt == _dtInt) {
+                                printf("%d ", getValue(right));
+                            } else {
+                                cust_err("ID of unknown type\n");
+                                exit(1);
+                            }
                         } else {
                             printf("Invalid write statement");
                             cust_err("Invalid write statement");
