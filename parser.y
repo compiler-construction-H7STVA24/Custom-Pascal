@@ -51,6 +51,15 @@ nodeType *ex(nodeType *root);
 
 %}
 
+%%
+[a-zA-Z][a-zA-Z0-9_]* {
+ 
+  strcpy(var_hash_table[yylval.sIndex].name, yytext);
+  var_hash_table[yylval.sIndex].hashValue = sym_hash(yytext);
+  yylval.sIndex++; // Increment the index for the next entry
+  return ID;
+}
+
 %union {
   char *sval;
   int ival;

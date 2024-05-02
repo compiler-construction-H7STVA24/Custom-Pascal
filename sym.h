@@ -1,6 +1,7 @@
 #define MAX_SYMBOLS 1000
 
-typedef enum {
+typedef enum
+{
   _typeInt,
   _typeStr,
   _typeChar,
@@ -36,42 +37,51 @@ typedef enum {
   _typeWhile,
   _typeIfElse,
   _typeIf,
-  
+  _typeVar, // new type for hash vali array
+
 } typeEnum;
 
-typedef enum {
-  _conInt, 
-  _conStr, 
+typedef enum
+{
+  _conInt,
+  _conStr,
   _conBool,
   _opr,
   _id,
 } nodeEnum;
 
-typedef struct {
+typedef struct
+{
   int value;
 } _conIntNodeType;
 
-typedef struct {
+typedef struct
+{
   int value;
 } _conBoolNodeType;
 
-typedef struct {
+typedef struct
+{
   char *value;
 } _conStrNodeType;
 
-typedef struct {
+typedef struct
+{
   int i;
 } _idNodeType;
 
-typedef struct {
+typedef struct
+{
   typeEnum oper;
   int nops;
   struct NodeTypeTag **ops;
 } _oprNodeType;
 
-typedef struct NodeTypeTag {
+typedef struct NodeTypeTag
+{
   nodeEnum type;
-  union {
+  union
+  {
     _conIntNodeType conInt;
     _conStrNodeType conStr;
     _conBoolNodeType conBool;
@@ -80,12 +90,24 @@ typedef struct NodeTypeTag {
   };
 } nodeType;
 
+typedef enum
+{
+  _dtEmpty,
+  _dtInt,
+  _dtReal,
+  _dtChar,
+  _dtBool,
+  _dtIntArr,
+  _dtRealArr,
+  _dtCharArr,
+  _dtBoolArr
+} dataType;
 
-typedef enum {_dtEmpty, _dtInt, _dtReal, _dtChar, _dtBool, _dtIntArr, _dtRealArr, _dtCharArr, _dtBoolArr} dataType;
-
-typedef struct {
+typedef struct
+{
   dataType dt;
-  union {
+  union
+  {
     int intValue;
     char charValue;
     float realValue;
@@ -97,6 +119,12 @@ typedef struct {
   int arrSize;
 } symNode;
 
-extern unsigned long sym_hash(char *str);
+typedef struct
+{
+  char name[50];
+  unsigned long hashValue;
+} VarHashPair;
 
+extern unsigned long sym_hash(char *str);
 extern symNode sym_table[MAX_SYMBOLS];
+extern VarHashPair var_hash_table[MAX_SYMBOLS];
