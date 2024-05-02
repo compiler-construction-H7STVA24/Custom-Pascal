@@ -1,0 +1,9 @@
+program ArrayAverage;
+var
+  numbers: array[1..5] of Integer;
+  sum : Integer;
+  ans : integer;
+begin
+  ans := 5 + 5;
+  write("ans = ", ans);
+end.
