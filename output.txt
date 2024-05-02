@@ -1,22 +1,12 @@
-i = 1
-L1: if i < 5 goto 5
+ASS i 10
+if ( i > 10 ) goto 5
 t1 = 0
 goto 6
 t1 = 1
-if t1 = 0 goto L2
-goto L1
+if t1 = 1 goto L1
+ASS i 20
+goto L2
+L1: ASS i 10
+MINUS i 1 t2
+ASS i t2
 L2: 
-ASS sum 0
-i = 1
-L3: if i < 5 goto 13
-t2 = 0
-goto 14
-t2 = 1
-if t2 = 0 goto L4
-INDEX numbers i t3
-PLUS sum t3 t4
-ASS sum t4
-goto L3
-L4: 
-DIV sum 5 t5
-ASS average t5

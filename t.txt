@@ -1,67 +1,35 @@
 program
-  623
+  Example9
   decls
-    decl-array
-      889
-      1
-      5
-      
-    decls
-      decl
-        mult-id
-          678
-          202
-        
-      decl
-        576
-        
+    decl
+      i
+      integer
+    decl
+      maxValue
+      real
   body
-    write
-      Enter
-        5
-        integer
-        values:
-    body
-      for
-        for-range
-          678
-          1
-          5
-        read
-          array-index
-            889
-            678
+    =
+      i
+      10
+    if-else
+      >
+        i
+        10
       body
         =
-          202
-          0
+          i
+          10
         body
-          for
-            for-range
-              678
+          =
+            i
+            -
+              i
               1
-              5
-            =
-              202
-              +
-                202
-                array-index
-                  889
-                  678
-          body
-            =
-              576
-              /
-                202
-                5
-            body
-              write
-                The
-                  sum
-                  and
-                  average
-                  are:
-              write
-                args
-                  202
-                  576
+          write
+            i
+      body
+        =
+          i
+          20
+        write
+          i

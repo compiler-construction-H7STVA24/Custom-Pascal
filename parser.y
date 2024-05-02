@@ -13,6 +13,8 @@ void cust_err(const char *s);
 extern FILE* yyin;
 extern FILE* yyout;
 
+FILE *treefile;
+
 int k = 1;
 int l = 1;
 int w = 1;
@@ -339,7 +341,9 @@ while_loop : KEY_WHILE bool_expr KEY_DO KEY_BEGIN body KEY_END SEMICOLON {
 
 for_range : identifier COLON EQ expr KEY_TO expr {
         $$ = opr(_typeForRange, 3, $1, $4, $6);
-}
+}       | identifier COLON EQ expr KEY_DOWNTO expr {
+        $$ = opr(_typeForRange, 3, $1, $6, $4);
+} 
 
 for_loop : KEY_FOR for_range KEY_DO KEY_BEGIN body KEY_END SEMICOLON {
         $$ = opr(_typeFor, 2, $2, $5);
@@ -352,7 +356,7 @@ loop : for_loop {$$ = $1;}
 program : KEY_PROGRAM identifier SEMICOLON decl_top KEY_BEGIN body KEY_END DOT {
         $$ = opr(_typeProgram, 3, $2, $4, $6);
         generateTAC($6, 0);
-        // printNode($$);
+        printNode($$);
         decEx($4);
         // printf("Decl done\n");
         ex($6);
@@ -819,54 +823,57 @@ void setArrValue(nodeType *arr, int index, int value) {
 
 void printNode(nodeType *p) {
     if (!p) return;
-    fprintf(yyout, "[");
+    fprintf(treefile, "[");
     if (p->type == _conInt) {
-        fprintf(yyout, "%d", p->conInt.value);
+        fprintf(treefile, "%d", p->conInt.value);
     }else if (p->type == _conReal) {
-        fprintf(yyout, "%f", p->conReal.value);
+        fprintf(treefile, "%f", p->conReal.value);
     } 
     else if (p->type == _conStr) {
-        fprintf(yyout, "%s", p->conStr.value);
+        fprintf(treefile, "%s", p->conStr.value);
     } else if (p->type == _id) {
-        fprintf(yyout, "%d", p->id.i);
+        fprintf(treefile, "%s", getName(p->id.i));
     } else if (p->type == _opr) {
         switch(p->opr.oper) {
-            case _typeAdd: fprintf(yyout, "+"); break;
-            case _typeSub: fprintf(yyout, "-"); break;
-            case _typeMul: fprintf(yyout, "*"); break;
-            case _typeDiv: fprintf(yyout, "/"); break;
-            case _typeMod: fprintf(yyout, "%%"); break;
-            case _typeAssign: fprintf(yyout, "="); break;
-            case _typeEE: fprintf(yyout, "=="); break;
-            case _typeNE: fprintf(yyout, "!="); break;
-            case _typeLT: fprintf(yyout, "<"); break;
-            case _typeLE: fprintf(yyout, "<="); break;
-            case _typeGT: fprintf(yyout, ">"); break;
-            case _typeGE: fprintf(yyout, ">="); break;
-            case _typeAnd: fprintf(yyout, "&&"); break;
-            case _typeOr: fprintf(yyout, "||"); break;
-            case _typeIf: fprintf(yyout, "if"); break;
-            case _typeIfElse: fprintf(yyout, "if-else"); break;
-            case _typeWhile: fprintf(yyout, "while"); break;
-            case _typeFor: fprintf(yyout, "for"); break;
-            case _typeForRange: fprintf(yyout, "for-range"); break;
-            case _typeRead: fprintf(yyout, "read"); break;
-            case _typeWrite: fprintf(yyout, "write"); break;
-            case _typeBody: fprintf(yyout, "body"); break;
-            case _typeDecls: fprintf(yyout, "decls"); break;
-            case _typeDecl: fprintf(yyout, "decl"); break;
-            case _typeDeclArray: fprintf(yyout, "decl-array"); break;
-            case _typeArgs: fprintf(yyout, "args"); break;
-            case _typeMultId: fprintf(yyout, "mult-id"); break;
-            case _typeArrayIndex: fprintf(yyout, "array-index"); break;
-            case _typeProgram: fprintf(yyout, "program"); break;
+            case _typeAdd: fprintf(treefile, "+"); break;
+            case _typeSub: fprintf(treefile, "-"); break;
+            case _typeMul: fprintf(treefile, "*"); break;
+            case _typeDiv: fprintf(treefile, "/"); break;
+            case _typeMod: fprintf(treefile, "%%"); break;
+            case _typeAssign: fprintf(treefile, "="); break;
+            case _typeEE: fprintf(treefile, "=="); break;
+            case _typeNE: fprintf(treefile, "!="); break;
+            case _typeLT: fprintf(treefile, "<"); break;
+            case _typeLE: fprintf(treefile, "<="); break;
+            case _typeGT: fprintf(treefile, ">"); break;
+            case _typeGE: fprintf(treefile, ">="); break;
+            case _typeAnd: fprintf(treefile, "&&"); break;
+            case _typeOr: fprintf(treefile, "||"); break;
+            case _typeIf: fprintf(treefile, "if"); break;
+            case _typeIfElse: fprintf(treefile, "if-else"); break;
+            case _typeWhile: fprintf(treefile, "while"); break;
+            case _typeFor: fprintf(treefile, "for"); break;
+            case _typeForRange: fprintf(treefile, "for-range"); break;
+            case _typeRead: fprintf(treefile, "read"); break;
+            case _typeWrite: fprintf(treefile, "write"); break;
+            case _typeBody: fprintf(treefile, "body"); break;
+            case _typeDecls: fprintf(treefile, "decls"); break;
+            case _typeDecl: fprintf(treefile, "decl"); break;
+            case _typeDeclArray: fprintf(treefile, "decl-array"); break;
+            case _typeArgs: fprintf(treefile, "args"); break;
+            case _typeMultId: fprintf(treefile, "mult-id"); break;
+            case _typeArrayIndex: fprintf(treefile, "array-index"); break;
+            case _typeProgram: fprintf(treefile, "program"); break;
+            case _typeInt: fprintf(treefile, "integer"); break;
+            case _typeReal: fprintf(treefile, "real"); break;
+            case _typeChar: fprintf(treefile, "char"); break;
         }
         
         for(int i = 0; i < p->opr.nops; i++) {
             printNode(p->opr.ops[i]);
         }
     }
-    fprintf(yyout, "]");
+    fprintf(treefile, "]");
 }
 float getRealValue(nodeType *p){
     if(p->type == _conReal) {
@@ -1528,6 +1535,12 @@ void initSymTable() {
 int main(int argc, char* argv[]) {
     if(argc < 2) {
         printf("Usage: %s <input_file>\n", argv[0]);
+        return 1;
+    }
+
+    treefile = fopen("tree.txt", "w");
+    if(treefile == NULL) {
+        printf("Error opening file %s\n", argv[1]);
         return 1;
     }
     initSymTable();
