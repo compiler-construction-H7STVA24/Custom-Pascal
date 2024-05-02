@@ -209,6 +209,7 @@ unsigned long sym_hash(char *str)
     return hash;
 }
 
+void printNode(nodeType *p);
 nodeType *opr(typeEnum oper, int nops, ...);
 nodeType *id(int i);
 nodeType *conInt(int value);
@@ -241,7 +242,7 @@ nodeType *ex(nodeType *root);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 53 "parser.y"
+#line 54 "parser.y"
 {
   char *sval;
   int ival;
@@ -249,7 +250,7 @@ typedef union YYSTYPE
   nodeType *nPtr;
 }
 /* Line 193 of yacc.c.  */
-#line 253 "y.tab.c"
+#line 254 "y.tab.c"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -262,7 +263,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 266 "y.tab.c"
+#line 267 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -575,12 +576,12 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    81,    81,    85,    89,    93,    97,   101,   105,   109,
-     113,   117,   121,   125,   129,   133,   137,   141,   145,   147,
-     151,   155,   159,   163,   167,   171,   175,   181,   185,   190,
-     195,   200,   205,   210,   215,   220,   226,   232,   238,   244,
-     250,   256,   260,   266,   273,   275,   277,   279,   281,   285,
-     289,   294,   299,   303,   307,   311,   313,   315
+       0,    82,    82,    86,    90,    94,    98,   102,   106,   110,
+     114,   118,   122,   126,   130,   134,   138,   142,   146,   148,
+     152,   156,   160,   164,   168,   172,   176,   182,   186,   191,
+     196,   201,   206,   211,   216,   221,   227,   233,   239,   245,
+     251,   257,   261,   267,   274,   276,   278,   280,   282,   286,
+     290,   295,   300,   304,   308,   312,   314,   316
 };
 #endif
 
@@ -1583,173 +1584,173 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 81 "parser.y"
+#line 82 "parser.y"
     {
         (yyval.nPtr) = conStr((yyvsp[(1) - (1)].sval));
 }
     break;
 
   case 3:
-#line 85 "parser.y"
+#line 86 "parser.y"
     {
         (yyval.nPtr) = conInt((yyvsp[(1) - (1)].ival));
 }
     break;
 
   case 4:
-#line 89 "parser.y"
+#line 90 "parser.y"
     {
         (yyval.nPtr) = id((yyvsp[(1) - (1)].sIndex));
 }
     break;
 
   case 5:
-#line 93 "parser.y"
+#line 94 "parser.y"
     {
         (yyval.nPtr) = opr(_typeArrayIndex, 2, (yyvsp[(1) - (4)].nPtr), (yyvsp[(3) - (4)].nPtr));
 }
     break;
 
   case 6:
-#line 97 "parser.y"
+#line 98 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
 }
     break;
 
   case 7:
-#line 101 "parser.y"
+#line 102 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
         }
     break;
 
   case 8:
-#line 105 "parser.y"
+#line 106 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
         }
     break;
 
   case 9:
-#line 109 "parser.y"
+#line 110 "parser.y"
     {
         (yyval.nPtr) = opr(_typeAdd, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
 }
     break;
 
   case 10:
-#line 113 "parser.y"
+#line 114 "parser.y"
     {
         (yyval.nPtr) = opr(_typeSub, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 11:
-#line 117 "parser.y"
+#line 118 "parser.y"
     {
         (yyval.nPtr) = opr(_typeMul, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 12:
-#line 121 "parser.y"
+#line 122 "parser.y"
     {
         (yyval.nPtr) = opr(_typeMod, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 13:
-#line 125 "parser.y"
+#line 126 "parser.y"
     {
         (yyval.nPtr) = opr(_typeDiv, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
       }
     break;
 
   case 14:
-#line 129 "parser.y"
+#line 130 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr);
       }
     break;
 
   case 15:
-#line 133 "parser.y"
+#line 134 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
       }
     break;
 
   case 16:
-#line 137 "parser.y"
+#line 138 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(2) - (2)].nPtr);
 }
     break;
 
   case 17:
-#line 141 "parser.y"
+#line 142 "parser.y"
     {
         (yyval.nPtr) = opr(_typeDecls, 2, (yyvsp[(1) - (2)].nPtr), (yyvsp[(2) - (2)].nPtr));
 }
     break;
 
   case 18:
-#line 145 "parser.y"
+#line 146 "parser.y"
     {(yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 19:
-#line 147 "parser.y"
+#line 148 "parser.y"
     {
         (yyval.nPtr) = opr(_typeMultId, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
 }
     break;
 
   case 20:
-#line 151 "parser.y"
+#line 152 "parser.y"
     {
             (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
           }
     break;
 
   case 21:
-#line 155 "parser.y"
+#line 156 "parser.y"
     {
     (yyval.nPtr) = opr(_typeDecl, 2, (yyvsp[(1) - (4)].nPtr), (yyvsp[(3) - (4)].nPtr));
 }
     break;
 
   case 22:
-#line 159 "parser.y"
+#line 160 "parser.y"
     {
         (yyval.nPtr) = opr(_typeDeclArray, 4, (yyvsp[(1) - (11)].nPtr), (yyvsp[(5) - (11)].nPtr), (yyvsp[(7) - (11)].nPtr), (yyvsp[(10) - (11)].nPtr));
       }
     break;
 
   case 23:
-#line 163 "parser.y"
+#line 164 "parser.y"
     {
     (yyval.nPtr) = opr(_typeInt, 0);
 }
     break;
 
   case 24:
-#line 167 "parser.y"
+#line 168 "parser.y"
     {
     (yyval.nPtr) = opr(_typeChar, 0);
             }
     break;
 
   case 25:
-#line 171 "parser.y"
+#line 172 "parser.y"
     {
     (yyval.nPtr) = opr(_typeReal, 0);
             }
     break;
 
   case 26:
-#line 175 "parser.y"
+#line 176 "parser.y"
     {
     (yyval.nPtr) = opr(_typeBoolean, 0);
             
@@ -1757,14 +1758,14 @@ yyreduce:
     break;
 
   case 27:
-#line 181 "parser.y"
+#line 182 "parser.y"
     {
         (yyval.nPtr) = opr(_typeRead, 1, (yyvsp[(3) - (5)].nPtr));
 }
     break;
 
   case 28:
-#line 185 "parser.y"
+#line 186 "parser.y"
     {
         // printf("func call read\n");
         (yyval.nPtr) = opr(_typeRead, 1, (yyvsp[(3) - (5)].nPtr));
@@ -1772,7 +1773,7 @@ yyreduce:
     break;
 
   case 29:
-#line 190 "parser.y"
+#line 191 "parser.y"
     {
         // printf("func call write\n");
         (yyval.nPtr) = opr(_typeWrite, 1, (yyvsp[(3) - (5)].nPtr));
@@ -1780,7 +1781,7 @@ yyreduce:
     break;
 
   case 30:
-#line 195 "parser.y"
+#line 196 "parser.y"
     {
 //     printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = opr(_typeArgs, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
@@ -1788,7 +1789,7 @@ yyreduce:
     break;
 
   case 31:
-#line 200 "parser.y"
+#line 201 "parser.y"
     {
         // printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
@@ -1796,7 +1797,7 @@ yyreduce:
     break;
 
   case 32:
-#line 205 "parser.y"
+#line 206 "parser.y"
     {
         // printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = opr(_typeArgs, 2, (yyvsp[(1) - (3)].nPtr), (yyvsp[(3) - (3)].nPtr));
@@ -1804,7 +1805,7 @@ yyreduce:
     break;
 
   case 33:
-#line 210 "parser.y"
+#line 211 "parser.y"
     {
         // printf("(Stack push) %s\n", $1);
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
@@ -1812,7 +1813,7 @@ yyreduce:
     break;
 
   case 34:
-#line 215 "parser.y"
+#line 216 "parser.y"
     {
         // printf("%s = %s\n", $1, $4);
         (yyval.nPtr) = opr(_typeAssign, 2, (yyvsp[(1) - (5)].nPtr), (yyvsp[(4) - (5)].nPtr));
@@ -1820,7 +1821,7 @@ yyreduce:
     break;
 
   case 35:
-#line 220 "parser.y"
+#line 221 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "=", $3);
@@ -1829,7 +1830,7 @@ yyreduce:
     break;
 
   case 36:
-#line 226 "parser.y"
+#line 227 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "<>", $3);
@@ -1838,7 +1839,7 @@ yyreduce:
     break;
 
   case 37:
-#line 232 "parser.y"
+#line 233 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "<", $3);
@@ -1847,7 +1848,7 @@ yyreduce:
     break;
 
   case 38:
-#line 238 "parser.y"
+#line 239 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "<=", $3);
@@ -1856,7 +1857,7 @@ yyreduce:
     break;
 
   case 39:
-#line 244 "parser.y"
+#line 245 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, ">", $3);
@@ -1865,7 +1866,7 @@ yyreduce:
     break;
 
   case 40:
-#line 250 "parser.y"
+#line 251 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, ">=", $3);
@@ -1874,14 +1875,14 @@ yyreduce:
     break;
 
   case 41:
-#line 256 "parser.y"
+#line 257 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(2) - (3)].nPtr);
 }
     break;
 
   case 42:
-#line 260 "parser.y"
+#line 261 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "and", $3);
@@ -1890,7 +1891,7 @@ yyreduce:
     break;
 
   case 43:
-#line 266 "parser.y"
+#line 267 "parser.y"
     {
         // $$ = strdup("t");
         // gencode($$, $1, "or", $3);
@@ -1899,41 +1900,41 @@ yyreduce:
     break;
 
   case 44:
-#line 273 "parser.y"
+#line 274 "parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 45:
-#line 275 "parser.y"
+#line 276 "parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 46:
-#line 277 "parser.y"
+#line 278 "parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 47:
-#line 279 "parser.y"
+#line 280 "parser.y"
     { (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 48:
-#line 281 "parser.y"
+#line 282 "parser.y"
     {
         (yyval.nPtr) = opr(_typeBody, 2, (yyvsp[(1) - (2)].nPtr), (yyvsp[(2) - (2)].nPtr));
 }
     break;
 
   case 49:
-#line 285 "parser.y"
+#line 286 "parser.y"
     {
         (yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);
 }
     break;
 
   case 50:
-#line 289 "parser.y"
+#line 290 "parser.y"
     {
         // printf("end if\n");
         (yyval.nPtr) = opr(_typeIf, 2, (yyvsp[(2) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr));
@@ -1941,47 +1942,48 @@ yyreduce:
     break;
 
   case 51:
-#line 294 "parser.y"
+#line 295 "parser.y"
     {
         (yyval.nPtr) = opr(_typeIfElse, 3, (yyvsp[(2) - (11)].nPtr), (yyvsp[(5) - (11)].nPtr), (yyvsp[(9) - (11)].nPtr));
 }
     break;
 
   case 52:
-#line 299 "parser.y"
+#line 300 "parser.y"
     {
         (yyval.nPtr) = opr(_typeWhile, 2, (yyvsp[(2) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr));
 }
     break;
 
   case 53:
-#line 303 "parser.y"
+#line 304 "parser.y"
     {
         (yyval.nPtr) = opr(_typeForRange, 3, (yyvsp[(1) - (6)].nPtr), (yyvsp[(4) - (6)].nPtr), (yyvsp[(6) - (6)].nPtr));
 }
     break;
 
   case 54:
-#line 307 "parser.y"
+#line 308 "parser.y"
     {
         (yyval.nPtr) = opr(_typeFor, 2, (yyvsp[(2) - (7)].nPtr), (yyvsp[(5) - (7)].nPtr));
 }
     break;
 
   case 55:
-#line 311 "parser.y"
+#line 312 "parser.y"
     {(yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 56:
-#line 313 "parser.y"
+#line 314 "parser.y"
     {(yyval.nPtr) = (yyvsp[(1) - (1)].nPtr);}
     break;
 
   case 57:
-#line 315 "parser.y"
+#line 316 "parser.y"
     {
         (yyval.nPtr) = opr(_typeProgram, 3, (yyvsp[(2) - (8)].nPtr), (yyvsp[(4) - (8)].nPtr), (yyvsp[(6) - (8)].nPtr));
+        printNode((yyval.nPtr));
         decEx((yyvsp[(4) - (8)].nPtr));
         printf("Decl done\n");
         ex((yyvsp[(6) - (8)].nPtr));
@@ -1990,7 +1992,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1994 "y.tab.c"
+#line 1996 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -2204,7 +2206,7 @@ yyreturn:
 }
 
 
-#line 325 "parser.y"
+#line 327 "parser.y"
 
 
 nodeType *conInt(int value) {

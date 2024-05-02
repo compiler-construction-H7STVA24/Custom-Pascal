@@ -38,6 +38,7 @@ unsigned long sym_hash(char *str)
     return hash;
 }
 
+void printNode(nodeType *p);
 nodeType *opr(typeEnum oper, int nops, ...);
 nodeType *id(int i);
 nodeType *conInt(int value);
@@ -314,6 +315,7 @@ loop : for_loop {$$ = $1;}
 
 program : KEY_PROGRAM identifier SEMICOLON decl_top KEY_BEGIN body KEY_END DOT {
         $$ = opr(_typeProgram, 3, $2, $4, $6);
+        printNode($$);
         decEx($4);
         printf("Decl done\n");
         ex($6);
