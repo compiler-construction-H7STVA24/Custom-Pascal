@@ -1285,14 +1285,14 @@ nodeType* ex(nodeType *root) {
                 cust_err("Invalid data types for assignment\n");
                 exit(1);
             }
-            if (right->type == _conInt || getDt(right) == _dtIntArr) {
+            if (getDt(right) == _dtInt || getDt(right) == _dtIntArr) {
                 // printf("right = %i\n", getValue(right));
                 setValue(left, getValue(right));
             }
-            else if (right->type == _conReal|| getDt(right) == _dtRealArr)
+            else if (getDt(right) == _dtReal || getDt(right) == _dtRealArr)
                 setRealValue(left, getRealValue(right));
             else {
-
+                printf("%d", getDt(right));
                 cust_err("Assignment Error");
                 exit(1);
             }

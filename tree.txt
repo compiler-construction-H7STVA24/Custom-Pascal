@@ -1,0 +1,1 @@
+[program[arrayaverage][decls[decl[mult-id[i][mult-id[sum][mult-id[temp][maxvalue]]]][integer]][decl[average][real]]][body[read[temp]][body[=[maxvalue][temp]][body[=[sum][temp]][body[for[for-range[i][2][10]][body[read[temp]][body[if[>[temp][maxvalue]][=[maxvalue][temp]]][=[sum][+[sum][temp]]]]]][body[=[average][/[sum][5]]][write[args[sum][args[maxvalue][average]]]]]]]]]]

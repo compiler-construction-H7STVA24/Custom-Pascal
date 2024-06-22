@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 #include "sym.h"
 #include "y.tab.h"
 
@@ -70,8 +71,12 @@ int fake=0;
   return STR;
 }
 [a-zA-Z][a-zA-Z0-9_]* {
-  yylval.sIndex = sym_hash(yytext);
-  setName(yylval.sIndex, yytext);
+  char *idName = strdup(yytext);
+  for (int i = 0; idName[i] != '\0'; ++i) {
+    idName[i] = tolower(idName[i]);
+  }
+  yylval.sIndex = sym_hash(idName);
+  setName(yylval.sIndex, idName);
   return ID;
 }
 "+" { return OPR_PLUS;}

@@ -1,0 +1,18 @@
+ASS maxvalue temp
+ASS sum temp
+i = 2
+L1: if i < 10 goto 7
+t1 = 0
+goto 8
+t1 = 1
+if t1 = 0 goto L2
+if ( temp > maxvalue ) goto 11
+goto L3
+ASS maxvalue temp
+L3: 
+PLUS sum temp t2
+ASS sum t2
+goto L1
+L2: 
+DIV sum 5 t3
+ASS average t3
